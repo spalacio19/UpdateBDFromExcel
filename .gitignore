@@ -1,0 +1,7 @@
+[Oo]bj/
+[Bb]in/
+*.user
+.vs/
+*.suo
+*.pdb
+build_log.txt
