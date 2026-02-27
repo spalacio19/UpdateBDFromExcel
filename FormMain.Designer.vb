@@ -36,7 +36,7 @@ Partial Class FormMain
         btnExportTxt.Name = "btnExportTxt"
         btnExportTxt.Size = New Size(200, 50)
         btnExportTxt.TabIndex = 1
-        btnExportTxt.Text = "Export to TXT"
+        btnExportTxt.Text = "Import Do Not Call List"
         btnExportTxt.UseVisualStyleBackColor = True
         ' 
         ' FormMain

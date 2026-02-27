@@ -118,7 +118,7 @@ Public Class Form1
 
         ' Connection Azure SQL Database
 
-        Dim builder As New System.Data.SqlClient.SqlConnectionStringBuilder()
+        Dim builder As New SqlConnectionStringBuilder()
         builder.DataSource = "univista-azure-sql.database.windows.net"
         builder.UserID = "dbadmin"
         builder.Password = "jtr<wjF[{2nsf*rU<D0!"
