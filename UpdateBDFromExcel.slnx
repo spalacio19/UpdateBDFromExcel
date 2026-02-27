@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ExportExcelDb/ExportExcelDb.vbproj" Id="6776522e-f8b7-49d4-b9cc-45feb6b82212" />
+  <Project Path="UpdateBDFromExcel/UpdateBDFromExcel.csproj" Id="37dab9ae-47a0-4504-a430-38f152239cde" />
+</Solution>
