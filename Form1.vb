@@ -246,7 +246,7 @@ AND p.ExternalPolicyNumber IN (" & policyFilter & ")"
         bulkDt.Columns.Add("LoadDate", GetType(Date))
 
         ' SnapshotMonthEnd
-        Dim snapshotDate As Date = New Date(2026, 1, 31)
+        Dim snapshotDate As Date = New Date(2026, 2, 28) 'update date if needed
         Dim currentLoadDate As Date = DateTime.Now
 
         Cursor = Cursors.WaitCursor
@@ -330,7 +330,7 @@ AND p.ExternalPolicyNumber IN (" & policyFilter & ")"
 
                 ' insert in ReportDB.dbo.PolicyInForceSnapshotLog
                 Dim logQuery As String = "INSERT INTO dbo.PolicyInForceSnapshotLog (LogDate, InsertedRows, InForceSnapshot) VALUES (@LogDate, @InsertedRows, @InForceSnapshot)"
-                Dim snapshotDatex As Date = New Date(2026, 1, 31)
+                Dim snapshotDatex As Date = New Date(2026, 2, 28)
                 Using cmdLog As New SqlCommand(logQuery, conn)
                     cmdLog.Parameters.AddWithValue("@LogDate", DateTime.Now)
                     cmdLog.Parameters.AddWithValue("@InsertedRows", bulkDt.Rows.Count)

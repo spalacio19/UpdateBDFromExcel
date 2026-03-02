@@ -89,6 +89,10 @@ Public Class FormTxt
     ' BtnPreview – Map columns, check duplicates in DB, show in DtGV2
     ' ─────────────────────────────────────────────────────────────────────────
     Private Sub BtnPreview_Click(sender As Object, e As EventArgs) Handles BtnPreview.Click
+        LoadPreviewData()
+    End Sub
+
+    Private Sub LoadPreviewData()
         If DtGV1.DataSource Is Nothing Then
             MessageBox.Show("Please upload an  file first.")
             Return
@@ -96,7 +100,7 @@ Public Class FormTxt
 
         Dim dtExcel As DataTable = CType(DtGV1.DataSource, DataTable)
 
-        For Each col As String In {"AreaCode", "PhoneNumber"}
+        For Each col As String In {"AreaCode", "LocalNumber"}
             If Not HasColumn(dtExcel, col) Then
                 MessageBox.Show($"Required column '{col}' not found in the Excel file." & vbCrLf &
                                 "Make sure the header names match exactly.")
@@ -112,7 +116,7 @@ Public Class FormTxt
         Dim previewDt As New DataTable()
         previewDt.Columns.Add("Estado", GetType(String))        ' NEW — duplicate flag
         previewDt.Columns.Add("AreaCode", GetType(String))
-        previewDt.Columns.Add("PhoneNumber", GetType(String))
+        previewDt.Columns.Add("LocalNumber", GetType(String))
         previewDt.Columns.Add("State", GetType(String))
         previewDt.Columns.Add("AddedDate", GetType(DateTime))
         previewDt.Columns.Add("AddedByUser", GetType(String))
@@ -121,9 +125,9 @@ Public Class FormTxt
 
         For Each row As DataRow In dtExcel.Rows
             Dim areaCode As String = GetStr(row, "AreaCode")
-            Dim phoneNumber As String = GetStr(row, "PhoneNumber")
+            Dim localNumber As String = GetStr(row, "LocalNumber")
 
-            If String.IsNullOrWhiteSpace(areaCode) OrElse String.IsNullOrWhiteSpace(phoneNumber) Then
+            If String.IsNullOrWhiteSpace(areaCode) OrElse String.IsNullOrWhiteSpace(localNumber) Then
                 skipped += 1
                 Continue For
             End If
@@ -131,7 +135,7 @@ Public Class FormTxt
             Dim newRow As DataRow = previewDt.NewRow()
             newRow("Estado") = "✔ Nuevo"           ' default — will update after DB check
             newRow("AreaCode") = areaCode.Trim()
-            newRow("PhoneNumber") = phoneNumber.Trim()
+            newRow("LocalNumber") = localNumber.Trim()
 
             Dim stateVal As String = GetStr(row, "State")
             newRow("State") = If(String.IsNullOrWhiteSpace(stateVal), DBNull.Value, CObj(stateVal.Trim()))
@@ -152,7 +156,7 @@ Public Class FormTxt
         Next
 
         If previewDt.Rows.Count = 0 Then
-            MessageBox.Show("No valid rows to preview (AreaCode and PhoneNumber are required in every row).")
+            MessageBox.Show("No valid rows to preview (AreaCode and LocalNumber are required in every row).")
             BtnInsert.Enabled = False
             Return
         End If
@@ -172,10 +176,10 @@ Public Class FormTxt
             ' Build an in-memory table with just the keys we want to check
             Dim keysDt As New DataTable()
             keysDt.Columns.Add("AreaCode", GetType(String))
-            keysDt.Columns.Add("PhoneNumber", GetType(String))
+            keysDt.Columns.Add("LocalNumber", GetType(String))
             For Each row As DataRow In previewDt.Rows
                 keysDt.Rows.Add(row("AreaCode").ToString().Trim(),
-                                row("PhoneNumber").ToString().Trim())
+                                row("LocalNumber").ToString().Trim())
             Next
 
             Using conn As New System.Data.SqlClient.SqlConnection(builder.ConnectionString)
@@ -183,7 +187,7 @@ Public Class FormTxt
 
                 ' 1) Create a temp table for the incoming keys
                 Dim createTmp As String =
-                    "CREATE TABLE #tmpCheck (AreaCode VARCHAR(10), PhoneNumber VARCHAR(20));"
+                    "CREATE TABLE #tmpCheck (AreaCode VARCHAR(10), LocalNumber VARCHAR(20));"
                 Using cmd As New System.Data.SqlClient.SqlCommand(createTmp, conn)
                     cmd.ExecuteNonQuery()
                 End Using
@@ -192,24 +196,24 @@ Public Class FormTxt
                 Using bc As New System.Data.SqlClient.SqlBulkCopy(conn)
                     bc.DestinationTableName = "#tmpCheck"
                     bc.ColumnMappings.Add("AreaCode", "AreaCode")
-                    bc.ColumnMappings.Add("PhoneNumber", "PhoneNumber")
+                    bc.ColumnMappings.Add("LocalNumber", "LocalNumber")
                     bc.BulkCopyTimeout = 120
                     bc.WriteToServer(keysDt)
                 End Using
 
                 ' 3) JOIN to find which keys already exist in the real table
                 Dim checkSql As String =
-                    "SELECT t.AreaCode, t.PhoneNumber " &
+                    "SELECT t.AreaCode, t.LocalNumber " &
                     "FROM #tmpCheck t " &
                     "INNER JOIN DNC.dbo.DoNotCallNumbers d " &
-                    "  ON d.AreaCode = t.AreaCode AND d.PhoneNumber = t.PhoneNumber;"
+                    "  ON d.AreaCode = t.AreaCode AND d.LocalNumber = t.LocalNumber;"
 
                 Using cmd As New System.Data.SqlClient.SqlCommand(checkSql, conn)
                     cmd.CommandTimeout = 300
                     Using reader = cmd.ExecuteReader()
                         While reader.Read()
                             Dim key As String = reader("AreaCode").ToString().Trim() & "|" &
-                                                reader("PhoneNumber").ToString().Trim()
+                                                reader("LocalNumber").ToString().Trim()
                             existingKeys.Add(key)
                         End While
                     End Using
@@ -220,7 +224,7 @@ Public Class FormTxt
             Dim dupCount As Integer = 0
             For Each row As DataRow In previewDt.Rows
                 Dim key As String = row("AreaCode").ToString().Trim() & "|" &
-                                    row("PhoneNumber").ToString().Trim()
+                                    row("LocalNumber").ToString().Trim()
                 If existingKeys.Contains(key) Then
                     row("Estado") = "⚠ Ya existe"
                     dupCount += 1
@@ -238,7 +242,224 @@ Public Class FormTxt
             Dim summary As String = $"Preview listo: {previewDt.Rows.Count} filas totales." & vbCrLf &
                                     $"   ✔ Nuevas a insertar: {previewDt.Rows.Count - dupCount}" & vbCrLf &
                                     $"   ⚠ Ya existen en BD (no se insertarán): {dupCount}"
-            If skipped > 0 Then summary &= $"{vbCrLf}   ⛔ Saltadas (sin AreaCode/PhoneNumber): {skipped}"
+            If skipped > 0 Then summary &= $"{vbCrLf}   ⛔ Saltadas (sin AreaCode/LocalNumber): {skipped}"
+            MessageBox.Show(summary, "Preview", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+        Catch ex As Exception
+            MessageBox.Show("Error checking duplicates: " & ex.Message)
+            ' Still show the data even if DB check fails
+            DtGV2.DataSource = previewDt
+            BtnInsert.Enabled = True
+        Finally
+            Cursor = Cursors.Default
+        End Try
+    End Sub
+
+    Private Sub UpdatePreviewData()
+        If DtGV1.DataSource Is Nothing Then
+            MessageBox.Show("Please upload an  file first.")
+            Return
+        End If
+
+        Dim dtExcel As DataTable = CType(DtGV1.DataSource, DataTable)
+
+        For Each col As String In {"PhoneNumber", "AddedDate", "Status"}
+            If Not HasColumn(dtExcel, col) Then
+                MessageBox.Show($"Required column '{col}' not found in the Excel file." & vbCrLf &
+                                "Make sure the header names match exactly.")
+                Return
+            End If
+        Next
+
+        Dim defaultUser As String = Environment.UserName
+        Dim defaultDate As DateTime = DateTime.Now
+        Dim skipped As Integer = 0
+
+        ' ── Build in-memory preview table ─────────────────────────────────
+        Dim previewDt As New DataTable()
+        previewDt.Columns.Add("Estado", GetType(String))        ' NEW — duplicate flag
+        previewDt.Columns.Add("AreaCode", GetType(String))
+        previewDt.Columns.Add("LocalNumber", GetType(String))
+        previewDt.Columns.Add("State", GetType(String))
+        previewDt.Columns.Add("AddedDate", GetType(DateTime))
+        previewDt.Columns.Add("AddedByUser", GetType(String))
+        previewDt.Columns.Add("Source", GetType(String))
+        previewDt.Columns.Add("Notes", GetType(String))
+        previewDt.Columns.Add("PhoneNumber", GetType(String))
+        previewDt.Columns.Add("Status", GetType(String))
+
+
+
+        For Each row As DataRow In dtExcel.Rows
+            Dim PhoneNumber As String = GetStr(row, "PhoneNumber")
+
+
+            If String.IsNullOrWhiteSpace(PhoneNumber) Then
+                skipped += 1
+                Continue For
+            End If
+
+            Dim newRow As DataRow = previewDt.NewRow()
+            newRow("Estado") = "✔ Nuevo"           ' default — will update after DB check
+            
+            Dim cleanPhone As String = PhoneNumber.Trim()
+            ' Splitting the 10-digit number into AreaCode (3 digits) and LocalNumber (7 digits)
+            If cleanPhone.Length >= 10 Then
+                newRow("AreaCode") = cleanPhone.Substring(0, 3)     ' e.g. "210"
+                newRow("LocalNumber") = cleanPhone.Substring(3)     ' e.g. "2107788"
+            Else
+                newRow("AreaCode") = cleanPhone
+                newRow("LocalNumber") = cleanPhone
+            End If
+
+            Dim stateVal As String = GetStr(row, "State")
+            newRow("State") = If(String.IsNullOrWhiteSpace(stateVal), DBNull.Value, CObj(stateVal.Trim()))
+
+            Dim addedDateVal As Object = GetSafeDate(row, "AddedDate")
+            newRow("AddedDate") = If(addedDateVal Is DBNull.Value, CObj(defaultDate), addedDateVal)
+
+            Dim addedBy As String = GetStr(row, "AddedByUser")
+            newRow("AddedByUser") = If(String.IsNullOrWhiteSpace(addedBy), defaultUser, addedBy.Trim())
+
+            Dim sourceVal As String = GetStr(row, "Source")
+            newRow("Source") = If(String.IsNullOrWhiteSpace(sourceVal), DBNull.Value, CObj(sourceVal.Trim()))
+
+            Dim notesVal As String = GetStr(row, "Notes")
+            newRow("Notes") = If(String.IsNullOrWhiteSpace(notesVal), DBNull.Value, CObj(notesVal.Trim()))
+
+            Dim phoneNumberVal As String = GetStr(row, "PhoneNumber")
+            newRow("PhoneNumber") = If(String.IsNullOrWhiteSpace(phoneNumberVal), DBNull.Value, CObj(phoneNumberVal.Trim()))
+
+            Dim statusVal As String = GetStr(row, "Status")
+            Dim validStatus As String = If(String.IsNullOrWhiteSpace(statusVal), "A", statusVal.Trim().ToUpper())
+            If validStatus <> "D" AndAlso validStatus <> "A" Then validStatus = "A"
+            newRow("Status") = validStatus
+
+
+            previewDt.Rows.Add(newRow)
+        Next
+
+        If previewDt.Rows.Count = 0 Then
+            MessageBox.Show("No valid rows to preview (AreaCode and LocalNumber are required in every row).")
+            BtnInsert.Enabled = False
+            Return
+        End If
+
+        ' ── Check duplicates against DB (temp-table + JOIN — scales to any size) ──
+        Cursor = Cursors.WaitCursor
+        Try
+            Dim existingKeys As New Dictionary(Of String, Boolean)(StringComparer.OrdinalIgnoreCase)
+            Dim stateMap As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+            Dim statusMap As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+
+
+            Dim builder As New System.Data.SqlClient.SqlConnectionStringBuilder()
+            builder.DataSource = "172.190.120.3"
+            builder.InitialCatalog = "DNC"
+            builder.UserID = "sa"
+            builder.Password = "Dell2014#"
+            builder.TrustServerCertificate = True
+
+            ' Build an in-memory table with just the keys we want to check
+            Dim keysDt As New DataTable()
+            keysDt.Columns.Add("AreaCode", GetType(String))
+            keysDt.Columns.Add("LocalNumber", GetType(String))
+            For Each row As DataRow In previewDt.Rows
+                keysDt.Rows.Add(row("AreaCode").ToString().Trim(),
+                                row("LocalNumber").ToString().Trim())
+            Next
+
+            Using conn As New System.Data.SqlClient.SqlConnection(builder.ConnectionString)
+                conn.Open()
+
+                ' 1) Create a temp table for the incoming keys
+                Dim createTmp As String =
+                    "CREATE TABLE #tmpCheck (AreaCode VARCHAR(10), LocalNumber VARCHAR(20));"
+                Using cmd As New System.Data.SqlClient.SqlCommand(createTmp, conn)
+                    cmd.ExecuteNonQuery()
+                End Using
+
+                ' 2) Bulk-insert the incoming keys into the temp table (fast, no query-size limit)
+                Using bc As New System.Data.SqlClient.SqlBulkCopy(conn)
+                    bc.DestinationTableName = "#tmpCheck"
+                    bc.ColumnMappings.Add("AreaCode", "AreaCode")
+                    bc.ColumnMappings.Add("LocalNumber", "LocalNumber")
+                    bc.BulkCopyTimeout = 120
+                    bc.WriteToServer(keysDt)
+                End Using
+
+                ' 3) JOIN to find which keys already exist in the real table and get State from AreaCodeByState for new ones
+                Dim checkSql As String =
+                    "SELECT t.AreaCode, t.LocalNumber, d.State AS DbState, d.Status AS DbStatus, s.StateCode AS NewState " &
+                    "FROM #tmpCheck t " &
+                    "LEFT JOIN DNC.dbo.DoNotCallNumbers d WITH (NOLOCK) " &
+                    "  ON d.AreaCode = t.AreaCode AND d.LocalNumber = t.LocalNumber " &
+                    "LEFT JOIN DNC.dbo.AreaCodeByState s WITH (NOLOCK) " &
+                    "  ON s.AreaCode = LEFT(t.AreaCode, 3);"
+
+                Using cmd As New System.Data.SqlClient.SqlCommand(checkSql, conn)
+                    cmd.CommandTimeout = 300
+                    Using reader = cmd.ExecuteReader()
+                        While reader.Read()
+                            Dim key As String = reader("AreaCode").ToString().Trim() & "|" &
+                                                reader("LocalNumber").ToString().Trim()
+                            Dim isDup As Boolean = Not IsDBNull(reader("DbState"))
+                            
+                            If isDup Then
+                                existingKeys(key) = True
+                                stateMap(key) = reader("DbState").ToString().Trim()
+                                statusMap(key) = If(IsDBNull(reader("DbStatus")), "", reader("DbStatus").ToString().Trim().ToUpper())
+                            Else
+                                If Not IsDBNull(reader("NewState")) Then
+                                    stateMap(key) = reader("NewState").ToString().Trim()
+                                End If
+                            End If
+                        End While
+                    End Using
+                End Using
+            End Using
+
+            ' Mark duplicates in preview table and apply State
+            Dim dupCount As Integer = 0
+            Dim skipCount As Integer = 0
+            Dim updateCount As Integer = 0
+
+            For Each row As DataRow In previewDt.Rows
+                Dim key As String = row("AreaCode").ToString().Trim() & "|" &
+                                    row("LocalNumber").ToString().Trim()
+                
+                If stateMap.ContainsKey(key) AndAlso Not String.IsNullOrWhiteSpace(stateMap(key)) Then
+                    row("State") = stateMap(key)
+                End If
+
+                If existingKeys.ContainsKey(key) Then
+                    dupCount += 1
+                    Dim dbStatus As String = If(statusMap.ContainsKey(key), statusMap(key), "")
+                    Dim newStatus As String = row("Status").ToString().Trim().ToUpper()
+
+                    If dbStatus <> newStatus AndAlso (dbStatus = "A" OrElse dbStatus = "D") AndAlso (newStatus = "A" OrElse newStatus = "D") Then
+                        row("Estado") = "🔄 A actualizar Status"
+                        updateCount += 1
+                    Else
+                        row("Estado") = "☑ Sin cambios"
+                        skipCount += 1
+                    End If
+                End If
+            Next
+
+            ' Show in DtGV2
+            DtGV2.DataSource = previewDt
+
+            ' Color duplicate rows yellow/orange
+            AddHandler DtGV2.CellFormatting, AddressOf DtGV2_CellFormatting
+
+            BtnInsert.Enabled = True
+
+            Dim summary As String = $"Preview listo: {previewDt.Rows.Count} filas totales." & vbCrLf &
+                                    $"   ✔ Nuevas a insertar: {previewDt.Rows.Count - dupCount}" & vbCrLf &
+                                    $"   🔄 Existentes a actualizar Status: {updateCount}" & vbCrLf &
+                                    $"   ☑ Existentes sin cambios (se omiten): {skipCount}"
+            If skipped > 0 Then summary &= $"{vbCrLf}   ⛔ Saltadas (sin AreaCode/LocalNumber): {skipped}"
             MessageBox.Show(summary, "Preview", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
         Catch ex As Exception
@@ -280,42 +501,61 @@ Public Class FormTxt
 
         ' Filter only new rows
         Dim newRows As DataRow() = previewDt.Select("Estado = '✔ Nuevo'")
-        Dim dupRows As Integer = previewDt.Select("Estado = '⚠ Ya existe'").Length
+        Dim updateRows As DataRow() = previewDt.Select("Estado = '🔄 A actualizar Status'")
 
-        If newRows.Length = 0 Then
-            MessageBox.Show($"No hay filas nuevas para insertar." & vbCrLf &
-                            $"Todas las {dupRows} filas ya existen en la BD.",
-                            "Sin datos nuevos", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        If newRows.Length = 0 AndAlso updateRows.Length = 0 Then
+            MessageBox.Show($"No hay filas nuevas ni para actualizar.",
+                            "Sin datos accionar", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
         Dim confirm As DialogResult = MessageBox.Show(
             $"Se insertarán {newRows.Length} filas nuevas en DNC.dbo.DoNotCallNumbers." & vbCrLf &
-            If(dupRows > 0, $"Se omitirán {dupRows} filas que ya existen." & vbCrLf, "") &
+            $"Se actualizarán {updateRows.Length} filas que ya existen." & vbCrLf &
             vbCrLf & "¿Continuar?",
-            "Confirmar inserción", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+            "Confirmar acción", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
         If confirm <> DialogResult.Yes Then Return
 
         ' Build bulk DataTable from new rows only
         Dim bulkDt As New DataTable()
         bulkDt.Columns.Add("AreaCode", GetType(String))
-        bulkDt.Columns.Add("PhoneNumber", GetType(String))
+        bulkDt.Columns.Add("LocalNumber", GetType(String))
         bulkDt.Columns.Add("State", GetType(String))
         bulkDt.Columns.Add("AddedDate", GetType(DateTime))
         bulkDt.Columns.Add("AddedByUser", GetType(String))
         bulkDt.Columns.Add("Source", GetType(String))
         bulkDt.Columns.Add("Notes", GetType(String))
+        bulkDt.Columns.Add("PhoneNumber", GetType(String))
+        bulkDt.Columns.Add("Status", GetType(String))
 
         For Each row As DataRow In newRows
             Dim nr As DataRow = bulkDt.NewRow()
             nr("AreaCode") = row("AreaCode")
-            nr("PhoneNumber") = row("PhoneNumber")
-            nr("State") = "TX" 'row("State") esto hay que agregarlo manual
+            nr("LocalNumber") = row("LocalNumber")
+            nr("State") = row("State")
             nr("AddedDate") = row("AddedDate")
             nr("AddedByUser") = row("AddedByUser")
             nr("Source") = "National Do Not Call Registry" ' row("Source") esto hay que agregarlo manual
             nr("Notes") = row("Notes")
+            nr("PhoneNumber") = row("PhoneNumber")
+            nr("Status") = row("Status")
             bulkDt.Rows.Add(nr)
+        Next
+
+        ' Build update DataTable
+        Dim updateDt As New DataTable()
+        updateDt.Columns.Add("AreaCode", GetType(String))
+        updateDt.Columns.Add("LocalNumber", GetType(String))
+        updateDt.Columns.Add("Status", GetType(String))
+        updateDt.Columns.Add("AddedDate", GetType(DateTime))
+
+        For Each row As DataRow In updateRows
+            Dim nr As DataRow = updateDt.NewRow()
+            nr("AreaCode") = row("AreaCode")
+            nr("LocalNumber") = row("LocalNumber")
+            nr("Status") = row("Status")
+            nr("AddedDate") = row("AddedDate")
+            updateDt.Rows.Add(nr)
         Next
 
         Dim builder As New System.Data.SqlClient.SqlConnectionStringBuilder()
@@ -331,25 +571,61 @@ Public Class FormTxt
                 conn.Open()
 
                 ' ── Bulk insert ───────────────────────────────────────────
-                Using bulkCopy As New System.Data.SqlClient.SqlBulkCopy(conn)
-                    bulkCopy.DestinationTableName = "DNC.dbo.DoNotCallNumbers"
-                    bulkCopy.BatchSize = 5000
-                    bulkCopy.BulkCopyTimeout = 600
-                    bulkCopy.ColumnMappings.Add("AreaCode", "AreaCode")
-                    bulkCopy.ColumnMappings.Add("PhoneNumber", "PhoneNumber")
-                    bulkCopy.ColumnMappings.Add("State", "State")
-                    bulkCopy.ColumnMappings.Add("AddedDate", "AddedDate")
-                    bulkCopy.ColumnMappings.Add("AddedByUser", "AddedByUser")
-                    bulkCopy.ColumnMappings.Add("Source", "Source")
-                    bulkCopy.ColumnMappings.Add("Notes", "Notes")
-                    bulkCopy.WriteToServer(bulkDt)
-                End Using
+                If bulkDt.Rows.Count > 0 Then
+                    Using bulkCopy As New System.Data.SqlClient.SqlBulkCopy(conn)
+                        bulkCopy.DestinationTableName = "DNC.dbo.DoNotCallNumbers"
+                        bulkCopy.BatchSize = 5000
+                        bulkCopy.BulkCopyTimeout = 600
+                        bulkCopy.ColumnMappings.Add("AreaCode", "AreaCode")
+                        bulkCopy.ColumnMappings.Add("LocalNumber", "LocalNumber")
+                        bulkCopy.ColumnMappings.Add("State", "State")
+                        bulkCopy.ColumnMappings.Add("AddedDate", "AddedDate")
+                        bulkCopy.ColumnMappings.Add("AddedByUser", "AddedByUser")
+                        bulkCopy.ColumnMappings.Add("Source", "Source")
+                        bulkCopy.ColumnMappings.Add("Notes", "Notes")
+                        bulkCopy.ColumnMappings.Add("PhoneNumber", "PhoneNumber")
+                        bulkCopy.ColumnMappings.Add("Status", "Status")
+                        bulkCopy.WriteToServer(bulkDt)
+                    End Using
+                End If
+
+                ' ── Update Status ─────────────────────────────────────────
+                If updateDt.Rows.Count > 0 Then
+                    Dim createTmp As String =
+                        "CREATE TABLE #tmpUpdateStatus (AreaCode VARCHAR(10), LocalNumber VARCHAR(20), Status CHAR(1), AddedDate DATETIME);"
+                    Using cmd As New System.Data.SqlClient.SqlCommand(createTmp, conn)
+                        cmd.ExecuteNonQuery()
+                    End Using
+
+                    Using bc As New System.Data.SqlClient.SqlBulkCopy(conn)
+                        bc.DestinationTableName = "#tmpUpdateStatus"
+                        bc.ColumnMappings.Add("AreaCode", "AreaCode")
+                        bc.ColumnMappings.Add("LocalNumber", "LocalNumber")
+                        bc.ColumnMappings.Add("Status", "Status")
+                        bc.ColumnMappings.Add("AddedDate", "AddedDate")
+                        bc.BulkCopyTimeout = 120
+                        bc.WriteToServer(updateDt)
+                    End Using
+
+                    Dim updateSql As String =
+                        "UPDATE d " &
+                        "SET d.Status = t.Status, d.AddedDate = t.AddedDate " &
+                        "FROM DNC.dbo.DoNotCallNumbers d " &
+                        "INNER JOIN #tmpUpdateStatus t " &
+                        "  ON d.AreaCode = t.AreaCode AND d.LocalNumber = t.LocalNumber " &
+                        "WHERE d.Status <> t.Status;"
+
+                    Using cmd As New System.Data.SqlClient.SqlCommand(updateSql, conn)
+                        cmd.CommandTimeout = 300
+                        cmd.ExecuteNonQuery()
+                    End Using
+                End If
 
                 ' ── Log the export ────────────────────────────────────────
                 Dim logSql As String =
                     "INSERT INTO DNC.dbo.DoNotCallExportLog " &
-                    "(ExportDate, ExportedByUser, SourceFileName, RecordsExported) " &
-                    "VALUES (@ExportDate, @ExportedByUser, @SourceFileName, @RecordsExported)"
+                    "(ExportDate, ExportedByUser, SourceFileName, TotalTXT, RecordsInserted, RecordsUpdated) " &
+                    "VALUES (@ExportDate, @ExportedByUser, @SourceFileName, @TotalTXT, @RecordsInserted, @RecordsUpdated)"
 
                 Using cmdLog As New System.Data.SqlClient.SqlCommand(logSql, conn)
                     cmdLog.Parameters.AddWithValue("@ExportDate", DateTime.Now)
@@ -357,26 +633,32 @@ Public Class FormTxt
                     cmdLog.Parameters.AddWithValue("@SourceFileName",
                         If(String.IsNullOrWhiteSpace(Label1.Text) OrElse Label1.Text = "No file selected",
                            CObj(DBNull.Value), CObj(Label1.Text)))
-                    cmdLog.Parameters.AddWithValue("@RecordsExported", bulkDt.Rows.Count)
+                    cmdLog.Parameters.AddWithValue("@TotalTXT", previewDt.Rows.Count)
+                    cmdLog.Parameters.AddWithValue("@RecordsInserted", bulkDt.Rows.Count)
+                    cmdLog.Parameters.AddWithValue("@RecordsUpdated", updateDt.Rows.Count)
                     cmdLog.ExecuteNonQuery()
                 End Using
             End Using
 
-            ' Mark inserted rows as done in the grid
+            ' Mark rows as done in the grid
             For Each row As DataRow In newRows
                 row("Estado") = "✅ Insertado"
+            Next
+            For Each row As DataRow In updateRows
+                row("Estado") = "✅ Actualizado"
             Next
             DtGV2.Refresh()
 
             MessageBox.Show(
-                $"✔ Se insertaron {bulkDt.Rows.Count} filas en dbo.DoNotCallNumbers." & vbCrLf &
-                If(dupRows > 0, $"Se omitieron {dupRows} duplicados.", ""),
+                $"✔ Se procesaron {bulkDt.Rows.Count + updateDt.Rows.Count} filas en dbo.DoNotCallNumbers." & vbCrLf &
+                $"Insertados: {bulkDt.Rows.Count}" & vbCrLf &
+                $"Actualizados: {updateDt.Rows.Count}",
                 "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
             BtnInsert.Enabled = False
 
         Catch ex As Exception
-            MessageBox.Show("Error inserting data: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error processing data: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         Finally
             Cursor = Cursors.Default
         End Try
