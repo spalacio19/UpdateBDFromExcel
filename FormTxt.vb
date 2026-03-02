@@ -616,8 +616,9 @@ Public Class FormTxt
                 ' ── Log the export ────────────────────────────────────────
                 Dim logSql As String =
                     "INSERT INTO DNC.dbo.DoNotCallExportLog " &
-                    "(ExportDate, ExportedByUser, SourceFileName, TotalTXT, RecordsInserted, RecordsUpdated) " &
-                    "VALUES (@ExportDate, @ExportedByUser, @SourceFileName, @TotalTXT, @RecordsInserted, @RecordsUpdated)"
+                    "(LogId, ExportDate, ExportedByUser, SourceFileName, RecordsExported, RecordsInserted, RecordsUpdated) " &
+                    "SELECT ISNULL(MAX(LogId), 0) + 1, @ExportDate, @ExportedByUser, @SourceFileName, @RecordsExported, @RecordsInserted, @RecordsUpdated " &
+                    "FROM DNC.dbo.DoNotCallExportLog"
 
                 Using cmdLog As New System.Data.SqlClient.SqlCommand(logSql, conn)
                     cmdLog.Parameters.AddWithValue("@ExportDate", DateTime.Now)
@@ -625,7 +626,7 @@ Public Class FormTxt
                     cmdLog.Parameters.AddWithValue("@SourceFileName",
                         If(String.IsNullOrWhiteSpace(Label1.Text) OrElse Label1.Text = "No file selected",
                            CObj(DBNull.Value), CObj(Label1.Text)))
-                    cmdLog.Parameters.AddWithValue("@TotalTXT", previewDt.Rows.Count)
+                    cmdLog.Parameters.AddWithValue("@RecordsExported", previewDt.Rows.Count)
                     cmdLog.Parameters.AddWithValue("@RecordsInserted", bulkDt.Rows.Count)
                     cmdLog.Parameters.AddWithValue("@RecordsUpdated", updateDt.Rows.Count)
                     cmdLog.ExecuteNonQuery()
