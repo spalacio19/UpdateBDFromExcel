@@ -362,11 +362,11 @@ Public Class FormTxt
 
             ' Build an in-memory table with just the keys we want to check
             Dim keysDt As New DataTable()
+            keysDt.Columns.Add("PhoneNumber", GetType(String))
             keysDt.Columns.Add("AreaCode", GetType(String))
-            keysDt.Columns.Add("LocalNumber", GetType(String))
             For Each row As DataRow In previewDt.Rows
-                keysDt.Rows.Add(row("AreaCode").ToString().Trim(),
-                                row("LocalNumber").ToString().Trim())
+                keysDt.Rows.Add(row("PhoneNumber").ToString().Trim(),
+                                row("AreaCode").ToString().Trim())
             Next
 
             Using conn As New System.Data.SqlClient.SqlConnection(builder.ConnectionString)
@@ -374,7 +374,7 @@ Public Class FormTxt
 
                 ' 1) Create a temp table for the incoming keys
                 Dim createTmp As String =
-                    "CREATE TABLE #tmpCheck (AreaCode VARCHAR(10), LocalNumber VARCHAR(20));"
+                    "CREATE TABLE #tmpCheck (PhoneNumber VARCHAR(20), AreaCode VARCHAR(10));"
                 Using cmd As New System.Data.SqlClient.SqlCommand(createTmp, conn)
                     cmd.ExecuteNonQuery()
                 End Using
@@ -382,18 +382,18 @@ Public Class FormTxt
                 ' 2) Bulk-insert the incoming keys into the temp table (fast, no query-size limit)
                 Using bc As New System.Data.SqlClient.SqlBulkCopy(conn)
                     bc.DestinationTableName = "#tmpCheck"
+                    bc.ColumnMappings.Add("PhoneNumber", "PhoneNumber")
                     bc.ColumnMappings.Add("AreaCode", "AreaCode")
-                    bc.ColumnMappings.Add("LocalNumber", "LocalNumber")
                     bc.BulkCopyTimeout = 120
                     bc.WriteToServer(keysDt)
                 End Using
 
                 ' 3) JOIN to find which keys already exist in the real table and get State from AreaCodeByState for new ones
                 Dim checkSql As String =
-                    "SELECT t.AreaCode, t.LocalNumber, d.State AS DbState, d.Status AS DbStatus, s.StateCode AS NewState " &
+                    "SELECT t.PhoneNumber, d.State AS DbState, d.Status AS DbStatus, s.StateCode AS NewState " &
                     "FROM #tmpCheck t " &
                     "LEFT JOIN DNC.dbo.DoNotCallNumbers d WITH (NOLOCK) " &
-                    "  ON d.AreaCode = t.AreaCode AND d.LocalNumber = t.LocalNumber " &
+                    "  ON d.PhoneNumber = t.PhoneNumber " &
                     "LEFT JOIN DNC.dbo.AreaCodeByState s WITH (NOLOCK) " &
                     "  ON s.AreaCode = LEFT(t.AreaCode, 3);"
 
@@ -401,8 +401,7 @@ Public Class FormTxt
                     cmd.CommandTimeout = 300
                     Using reader = cmd.ExecuteReader()
                         While reader.Read()
-                            Dim key As String = reader("AreaCode").ToString().Trim() & "|" &
-                                                reader("LocalNumber").ToString().Trim()
+                            Dim key As String = reader("PhoneNumber").ToString().Trim()
                             Dim isDup As Boolean = Not IsDBNull(reader("DbState"))
                             
                             If isDup Then
@@ -425,8 +424,7 @@ Public Class FormTxt
             Dim updateCount As Integer = 0
 
             For Each row As DataRow In previewDt.Rows
-                Dim key As String = row("AreaCode").ToString().Trim() & "|" &
-                                    row("LocalNumber").ToString().Trim()
+                Dim key As String = row("PhoneNumber").ToString().Trim()
                 
                 If stateMap.ContainsKey(key) AndAlso Not String.IsNullOrWhiteSpace(stateMap(key)) Then
                     row("State") = stateMap(key)
@@ -544,15 +542,13 @@ Public Class FormTxt
 
         ' Build update DataTable
         Dim updateDt As New DataTable()
-        updateDt.Columns.Add("AreaCode", GetType(String))
-        updateDt.Columns.Add("LocalNumber", GetType(String))
+        updateDt.Columns.Add("PhoneNumber", GetType(String))
         updateDt.Columns.Add("Status", GetType(String))
         updateDt.Columns.Add("AddedDate", GetType(DateTime))
 
         For Each row As DataRow In updateRows
             Dim nr As DataRow = updateDt.NewRow()
-            nr("AreaCode") = row("AreaCode")
-            nr("LocalNumber") = row("LocalNumber")
+            nr("PhoneNumber") = row("PhoneNumber")
             nr("Status") = row("Status")
             nr("AddedDate") = row("AddedDate")
             updateDt.Rows.Add(nr)
@@ -592,15 +588,14 @@ Public Class FormTxt
                 ' ── Update Status ─────────────────────────────────────────
                 If updateDt.Rows.Count > 0 Then
                     Dim createTmp As String =
-                        "CREATE TABLE #tmpUpdateStatus (AreaCode VARCHAR(10), LocalNumber VARCHAR(20), Status CHAR(1), AddedDate DATETIME);"
+                        "CREATE TABLE #tmpUpdateStatus (PhoneNumber VARCHAR(20), Status CHAR(1), AddedDate DATETIME);"
                     Using cmd As New System.Data.SqlClient.SqlCommand(createTmp, conn)
                         cmd.ExecuteNonQuery()
                     End Using
 
                     Using bc As New System.Data.SqlClient.SqlBulkCopy(conn)
                         bc.DestinationTableName = "#tmpUpdateStatus"
-                        bc.ColumnMappings.Add("AreaCode", "AreaCode")
-                        bc.ColumnMappings.Add("LocalNumber", "LocalNumber")
+                        bc.ColumnMappings.Add("PhoneNumber", "PhoneNumber")
                         bc.ColumnMappings.Add("Status", "Status")
                         bc.ColumnMappings.Add("AddedDate", "AddedDate")
                         bc.BulkCopyTimeout = 120
@@ -612,7 +607,7 @@ Public Class FormTxt
                         "SET d.Status = t.Status, d.AddedDate = t.AddedDate " &
                         "FROM DNC.dbo.DoNotCallNumbers d " &
                         "INNER JOIN #tmpUpdateStatus t " &
-                        "  ON d.AreaCode = t.AreaCode AND d.LocalNumber = t.LocalNumber " &
+                        "  ON d.PhoneNumber = t.PhoneNumber " &
                         "WHERE d.Status <> t.Status;"
 
                     Using cmd As New System.Data.SqlClient.SqlCommand(updateSql, conn)
