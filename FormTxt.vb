@@ -363,10 +363,8 @@ Public Class FormTxt
             ' Build an in-memory table with just the keys we want to check
             Dim keysDt As New DataTable()
             keysDt.Columns.Add("PhoneNumber", GetType(String))
-            keysDt.Columns.Add("AreaCode", GetType(String))
             For Each row As DataRow In previewDt.Rows
-                keysDt.Rows.Add(row("PhoneNumber").ToString().Trim(),
-                                row("AreaCode").ToString().Trim())
+                keysDt.Rows.Add(row("PhoneNumber").ToString().Trim())
             Next
 
             Using conn As New System.Data.SqlClient.SqlConnection(builder.ConnectionString)
@@ -374,7 +372,7 @@ Public Class FormTxt
 
                 ' 1) Create a temp table for the incoming keys
                 Dim createTmp As String =
-                    "CREATE TABLE #tmpCheck (PhoneNumber VARCHAR(20), AreaCode VARCHAR(10));"
+                    "CREATE TABLE #tmpCheck (PhoneNumber VARCHAR(20));"
                 Using cmd As New System.Data.SqlClient.SqlCommand(createTmp, conn)
                     cmd.ExecuteNonQuery()
                 End Using
@@ -383,7 +381,6 @@ Public Class FormTxt
                 Using bc As New System.Data.SqlClient.SqlBulkCopy(conn)
                     bc.DestinationTableName = "#tmpCheck"
                     bc.ColumnMappings.Add("PhoneNumber", "PhoneNumber")
-                    bc.ColumnMappings.Add("AreaCode", "AreaCode")
                     bc.BulkCopyTimeout = 120
                     bc.WriteToServer(keysDt)
                 End Using
@@ -395,7 +392,7 @@ Public Class FormTxt
                     "LEFT JOIN DNC.dbo.DoNotCallNumbers d WITH (NOLOCK) " &
                     "  ON d.PhoneNumber = t.PhoneNumber " &
                     "LEFT JOIN DNC.dbo.AreaCodeByState s WITH (NOLOCK) " &
-                    "  ON s.AreaCode = LEFT(t.AreaCode, 3);"
+                    "  ON s.AreaCode = LEFT(t.PhoneNumber, 3);"
 
                 Using cmd As New System.Data.SqlClient.SqlCommand(checkSql, conn)
                     cmd.CommandTimeout = 300
