@@ -89,7 +89,7 @@ Public Class FormTxt
     ' BtnPreview – Map columns, check duplicates in DB, show in DtGV2
     ' ─────────────────────────────────────────────────────────────────────────
     Private Sub BtnPreview_Click(sender As Object, e As EventArgs) Handles BtnPreview.Click
-        LoadPreviewData()
+        UpdatePreviewData()
     End Sub
 
     Private Sub LoadPreviewData()
