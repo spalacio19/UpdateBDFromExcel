@@ -208,7 +208,7 @@ Public Class FormTxt
                     "INNER JOIN DNC.dbo.DoNotCallNumbers d " &
                     "  ON d.AreaCode = t.AreaCode AND d.LocalNumber = t.LocalNumber;"
 
-                Using cmd As New System.Data.SqlClient.SqlCommand(checkSql, conn)
+                Using cmd As New SqlCommand(checkSql, conn)
                     cmd.CommandTimeout = 300
                     Using reader = cmd.ExecuteReader()
                         While reader.Read()
@@ -505,7 +505,7 @@ Public Class FormTxt
         End If
 
         Dim confirm As DialogResult = MessageBox.Show(
-            $"Se insertarán {newRows.Length} filas nuevas en DNC.dbo.DoNotCallNumbers." & vbCrLf &
+            $"Se insertarán {newRows.Length} filas nuevas en DoNotCallNumbers." & vbCrLf &
             $"Se actualizarán {updateRows.Length} filas que ya existen." & vbCrLf &
             vbCrLf & "¿Continuar?",
             "Confirmar acción", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
@@ -616,8 +616,8 @@ Public Class FormTxt
                 ' ── Log the export ────────────────────────────────────────
                 Dim logSql As String =
                     "INSERT INTO DNC.dbo.DoNotCallExportLog " &
-                    "(LogId, ExportDate, ExportedByUser, SourceFileName, RecordsExported, RecordsInserted, RecordsUpdated) " &
-                    "SELECT ISNULL(MAX(LogId), 0) + 1, @ExportDate, @ExportedByUser, @SourceFileName, @RecordsExported, @RecordsInserted, @RecordsUpdated " &
+                    "( ExportDate, ExportedByUser, SourceFileName, RecordsExported, RecordsInserted, RecordsUpdated) " &
+                    "SELECT @ExportDate, @ExportedByUser, @SourceFileName, @RecordsExported, @RecordsInserted, @RecordsUpdated " &
                     "FROM DNC.dbo.DoNotCallExportLog"
 
                 Using cmdLog As New System.Data.SqlClient.SqlCommand(logSql, conn)
@@ -643,7 +643,7 @@ Public Class FormTxt
             DtGV2.Refresh()
 
             MessageBox.Show(
-                $"✔ Se procesaron {bulkDt.Rows.Count + updateDt.Rows.Count} filas en dbo.DoNotCallNumbers." & vbCrLf &
+                $"✔ Se procesaron {bulkDt.Rows.Count + updateDt.Rows.Count} filas en DoNotCallNumbers." & vbCrLf &
                 $"Insertados: {bulkDt.Rows.Count}" & vbCrLf &
                 $"Actualizados: {updateDt.Rows.Count}",
                 "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information)

@@ -1,6 +1,6 @@
 Public Class FormMain
     Private Sub btnExportExcel_Click(sender As Object, e As EventArgs) Handles btnExportExcel.Click
-        Dim f As New Form1()
+        Dim f As New Form2()
         f.Show()
     End Sub
 

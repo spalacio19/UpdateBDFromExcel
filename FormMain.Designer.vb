@@ -23,7 +23,7 @@ Partial Class FormMain
         ' 
         ' btnExportExcel
         ' 
-        btnExportExcel.Location = New Point(100, 50)
+        btnExportExcel.Location = New Point(100, 54)
         btnExportExcel.Name = "btnExportExcel"
         btnExportExcel.Size = New Size(200, 50)
         btnExportExcel.TabIndex = 0
