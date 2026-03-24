@@ -1,7 +1,60 @@
-﻿Imports System.IO
+Imports System.IO
 
 Public Class Form1
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+
+    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ' Hover effects for Upload button (blue)
+        AddHandler btnUpload.MouseEnter, Sub(s, ev)
+                                             btnUpload.BackColor = Color.FromArgb(29, 78, 187)
+                                         End Sub
+        AddHandler btnUpload.MouseLeave, Sub(s, ev)
+                                             btnUpload.BackColor = Color.FromArgb(37, 99, 235)
+                                         End Sub
+
+        ' Hover effects for Read Azure button (blue)
+        AddHandler btnReadAzure.MouseEnter, Sub(s, ev)
+                                                btnReadAzure.BackColor = Color.FromArgb(29, 78, 187)
+                                            End Sub
+        AddHandler btnReadAzure.MouseLeave, Sub(s, ev)
+                                                btnReadAzure.BackColor = Color.FromArgb(37, 99, 235)
+                                            End Sub
+
+        ' Hover effects for Insert Snapshot button (green)
+        AddHandler btnInsertSnapshot.MouseEnter, Sub(s, ev)
+                                                     btnInsertSnapshot.BackColor = Color.FromArgb(16, 130, 58)
+                                                 End Sub
+        AddHandler btnInsertSnapshot.MouseLeave, Sub(s, ev)
+                                                     btnInsertSnapshot.BackColor = Color.FromArgb(22, 163, 74)
+                                                 End Sub
+    End Sub
+
+    Private Sub SetDoubleBuffered(control As Control)
+        Try
+            Dim dgvType As Type = GetType(Control)
+            Dim pi As System.Reflection.PropertyInfo = dgvType.GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance Or System.Reflection.BindingFlags.NonPublic)
+            pi.SetValue(control, True, Nothing)
+        Catch ex As Exception
+        End Try
+    End Sub
+
+    Private Sub UpdateStatus(message As String)
+        LblStatus.Text = message
+        Application.DoEvents()
+    End Sub
+
+    Private Sub UpdateRowCount()
+        If DtGV1.DataSource IsNot Nothing Then
+            Dim dt As DataTable = CType(DtGV1.DataSource, DataTable)
+            LblRowCount.Text = $"Rows: {dt.Rows.Count:N0}"
+        Else
+            LblRowCount.Text = "Rows: 0"
+        End If
+    End Sub
+
+    ' ─────────────────────────────────────────────
+    '  BUTTON 1: Upload Excel
+    ' ─────────────────────────────────────────────
+    Private Sub btnUpload_Click(sender As Object, e As EventArgs) Handles btnUpload.Click
         Using ofd As New OpenFileDialog()
             ofd.Filter = "Excel files|*.xlsx;*.xls;*.xlsm|All files|*.*"
             If ofd.ShowDialog() <> DialogResult.OK Then Return
@@ -16,8 +69,9 @@ Public Class Form1
                 connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & file & ";Extended Properties='Excel 12.0 Xml;HDR=YES;IMEX=1';"
             End If
 
+            LblFilePath.Text = Path.GetFileName(file)
             Cursor = Cursors.WaitCursor
-
+            UpdateStatus("Loading Excel file...")
 
             DtGV1.SuspendLayout()
 
@@ -25,10 +79,8 @@ Public Class Form1
                 Using conn As New OleDbConnection(connString)
                     conn.Open()
 
-
                     Dim schemaTable As DataTable = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, Nothing)
                     Dim sheetName As String = Nothing
-
 
                     If schemaTable IsNot Nothing Then
                         For Each row As DataRow In schemaTable.Rows
@@ -42,6 +94,7 @@ Public Class Form1
 
                     If String.IsNullOrEmpty(sheetName) Then
                         MessageBox.Show("No valid worksheets found.")
+                        UpdateStatus("No worksheets found")
                         Return
                     End If
 
@@ -51,44 +104,34 @@ Public Class Form1
                         Dim dt As New DataTable()
                         adapter.Fill(dt)
 
-
                         DtGV1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
                         DtGV1.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.EnableResizing
 
                         DtGV1.DataSource = dt
+                        UpdateStatus($"✅ Excel loaded: {dt.Rows.Count:N0} rows from '{Path.GetFileName(file)}'")
                     End Using
                 End Using
             Catch ex As Exception
                 MessageBox.Show("Failed to read Excel file: " & ex.Message)
+                UpdateStatus("❌ Error loading Excel")
             Finally
-
                 SetDoubleBuffered(DtGV1)
-
-
                 DtGV1.ResumeLayout()
+                UpdateRowCount()
                 Cursor = Cursors.Default
             End Try
         End Using
     End Sub
 
-
-    Private Sub SetDoubleBuffered(control As Control)
-        Try
-            Dim dgvType As Type = GetType(Control)
-            Dim pi As System.Reflection.PropertyInfo = dgvType.GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance Or System.Reflection.BindingFlags.NonPublic)
-            pi.SetValue(control, True, Nothing)
-        Catch ex As Exception
-
-        End Try
-    End Sub
-
-    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+    ' ─────────────────────────────────────────────
+    '  BUTTON 2: Read from Azure
+    ' ─────────────────────────────────────────────
+    Private Sub btnReadAzure_Click(sender As Object, e As EventArgs) Handles btnReadAzure.Click
 
         Dim policyNumbers As New HashSet(Of String)
 
         If DtGV1.DataSource IsNot Nothing Then
             Dim dtExcel As DataTable = CType(DtGV1.DataSource, DataTable)
-
 
             Dim colName As String = "Policy number"
 
@@ -100,7 +143,6 @@ Public Class Form1
             For Each row As DataRow In dtExcel.Rows
                 Dim policyVal = row(colName).ToString()
                 If Not String.IsNullOrWhiteSpace(policyVal) Then
-
                     policyNumbers.Add("'" & policyVal.Replace("'", "''") & "'")
                 End If
             Next
@@ -115,9 +157,9 @@ Public Class Form1
         End If
 
         Dim policyFilter As String = String.Join(",", policyNumbers)
+        UpdateStatus($"🔍 Querying Azure for {policyNumbers.Count:N0} policies...")
 
         ' Connection Azure SQL Database
-
         Dim builder As New SqlConnectionStringBuilder()
         builder.DataSource = "univista-azure-sql.database.windows.net"
         builder.UserID = "dbadmin"
@@ -162,7 +204,6 @@ AND p.ExternalPolicyNumber IN (" & policyFilter & ")"
                         End If
                     Next
 
-
                     ' Key: ExternalPolicyNumber (from Azure), Value: The entire row
                     Dim azureDataMap As New Dictionary(Of String, DataRow)
                     For Each row As DataRow In dtAzure.Rows
@@ -189,24 +230,27 @@ AND p.ExternalPolicyNumber IN (" & policyFilter & ")"
                         Next
                     End If
 
-
                     DtGV1.ResumeLayout()
                     DtGV1.Refresh()
                 Else
-
                     DtGV1.DataSource = dtAzure
                 End If
             End Using
-            'End Using
+            UpdateStatus($"✅ Azure data merged — {policyNumbers.Count:N0} policies matched")
+            UpdateRowCount()
             MessageBox.Show("Data loaded and merged from Azure successfully!")
         Catch ex As Exception
+            UpdateStatus("❌ Azure connection error")
             MessageBox.Show("Error connecting to Azure: " & ex.Message)
         Finally
             Cursor = Cursors.Default
         End Try
     End Sub
 
-    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+    ' ─────────────────────────────────────────────
+    '  BUTTON 3: Insert Snapshot (Bulk Copy)
+    ' ─────────────────────────────────────────────
+    Private Sub btnInsertSnapshot_Click(sender As Object, e As EventArgs) Handles btnInsertSnapshot.Click
         If DtGV1.DataSource Is Nothing Then
             MessageBox.Show("No data to insert. Please load data first.")
             Return
@@ -250,6 +294,7 @@ AND p.ExternalPolicyNumber IN (" & policyFilter & ")"
         Dim currentLoadDate As Date = DateTime.Now
 
         Cursor = Cursors.WaitCursor
+        UpdateStatus("💾 Preparing bulk insert...")
         Try
             ' Bulk DataTable in memory (much faster than DB calls)
             For Each row As DataRow In dt.Rows
@@ -293,8 +338,11 @@ AND p.ExternalPolicyNumber IN (" & policyFilter & ")"
 
             If bulkDt.Rows.Count = 0 Then
                 MessageBox.Show("No valid rows matched to insert (missing KeyPolicy).")
+                UpdateStatus("⚠️ No valid rows to insert")
                 Return
             End If
+
+            UpdateStatus($"💾 Inserting {bulkDt.Rows.Count:N0} rows into ReportDB...")
 
             '  Execute Bulk Copy
             Using conn As New System.Data.SqlClient.SqlConnection(builder.ConnectionString)
@@ -339,14 +387,17 @@ AND p.ExternalPolicyNumber IN (" & policyFilter & ")"
                 End Using
             End Using
 
+            UpdateStatus($"✅ Inserted {bulkDt.Rows.Count:N0} rows into PolicyInForceSnapshot")
             MessageBox.Show($"Successfully bulk inserted {bulkDt.Rows.Count} rows into ReportDB.")
 
         Catch ex As Exception
+            UpdateStatus("❌ Insert error")
             MessageBox.Show("Error inserting data: " & ex.Message)
         Finally
             Cursor = Cursors.Default
         End Try
     End Sub
+
     ' Helper function to safely parse dates from a DataRow
     Private Function GetSafeDate(row As DataRow, colName As String) As Object
         ' Check if column exists

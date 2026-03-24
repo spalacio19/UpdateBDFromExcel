@@ -76,7 +76,7 @@ Partial Class Form2
         Button3.Text = "Insert Snapshot"
         Button3.UseVisualStyleBackColor = True
         ' 
-        ' Form1
+        ' Form2
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
@@ -87,7 +87,7 @@ Partial Class Form2
         Controls.Add(Button1)
         Controls.Add(DtGV1)
         Name = "Form2"
-        Text = "Form2"
+        Text = "FrmTempDB"
         CType(DtGV1, ComponentModel.ISupportInitialize).EndInit()
         ResumeLayout(False)
         PerformLayout()

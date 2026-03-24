@@ -48,8 +48,8 @@ Partial Class FormMain
         ' 
         LblTitle.AutoSize = True
         LblTitle.Font = New Font("Segoe UI", 18F, FontStyle.Bold)
-        LblTitle.ForeColor = Color.White
-        LblTitle.Location = New Point(55, 15)
+        LblTitle.ForeColor = Color.FromArgb(CByte(255), CByte(255), CByte(192))
+        LblTitle.Location = New Point(83, 15)
         LblTitle.Name = "LblTitle"
         LblTitle.Size = New Size(328, 32)
         LblTitle.TabIndex = 0
@@ -79,7 +79,7 @@ Partial Class FormMain
         btnExportExcel.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(29), CByte(78), CByte(187))
         btnExportExcel.FlatStyle = FlatStyle.Flat
         btnExportExcel.Font = New Font("Segoe UI", 13F, FontStyle.Bold)
-        btnExportExcel.ForeColor = Color.White
+        btnExportExcel.ForeColor = Color.FromArgb(CByte(224), CByte(224), CByte(224))
         btnExportExcel.Location = New Point(30, 223)
         btnExportExcel.Name = "btnExportExcel"
         btnExportExcel.Padding = New Padding(15, 0, 0, 0)
@@ -108,7 +108,7 @@ Partial Class FormMain
         btnExportTxt.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(29), CByte(78), CByte(187))
         btnExportTxt.FlatStyle = FlatStyle.Flat
         btnExportTxt.Font = New Font("Segoe UI", 13F, FontStyle.Bold)
-        btnExportTxt.ForeColor = Color.White
+        btnExportTxt.ForeColor = Color.FromArgb(CByte(224), CByte(224), CByte(224))
         btnExportTxt.Location = New Point(30, 15)
         btnExportTxt.Name = "btnExportTxt"
         btnExportTxt.Padding = New Padding(15, 0, 0, 0)
@@ -137,7 +137,7 @@ Partial Class FormMain
         btnPolicySnapshot.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(29), CByte(78), CByte(187))
         btnPolicySnapshot.FlatStyle = FlatStyle.Flat
         btnPolicySnapshot.Font = New Font("Segoe UI", 13F, FontStyle.Bold)
-        btnPolicySnapshot.ForeColor = Color.White
+        btnPolicySnapshot.ForeColor = Color.FromArgb(CByte(224), CByte(224), CByte(224))
         btnPolicySnapshot.Location = New Point(30, 115)
         btnPolicySnapshot.Name = "btnPolicySnapshot"
         btnPolicySnapshot.Padding = New Padding(15, 0, 0, 0)
