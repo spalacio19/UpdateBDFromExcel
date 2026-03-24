@@ -1,7 +1,52 @@
-﻿Imports System.IO
+Imports System.IO
 
 Public Class Form2
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+
+    Private Sub Form2_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ' Hover effects for Upload button (blue)
+        AddHandler btnUpload.MouseEnter, Sub(s, ev)
+                                             btnUpload.BackColor = Color.FromArgb(29, 78, 187)
+                                         End Sub
+        AddHandler btnUpload.MouseLeave, Sub(s, ev)
+                                             btnUpload.BackColor = Color.FromArgb(37, 99, 235)
+                                         End Sub
+
+        ' Hover effects for Export DB button (green)
+        AddHandler btnExportDB.MouseEnter, Sub(s, ev)
+                                               btnExportDB.BackColor = Color.FromArgb(16, 130, 58)
+                                           End Sub
+        AddHandler btnExportDB.MouseLeave, Sub(s, ev)
+                                               btnExportDB.BackColor = Color.FromArgb(22, 163, 74)
+                                           End Sub
+    End Sub
+
+    Private Sub SetDoubleBuffered(control As Control)
+        Try
+            Dim dgvType As Type = GetType(Control)
+            Dim pi As System.Reflection.PropertyInfo = dgvType.GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance Or System.Reflection.BindingFlags.NonPublic)
+            pi.SetValue(control, True, Nothing)
+        Catch ex As Exception
+        End Try
+    End Sub
+
+    Private Sub UpdateStatus(message As String)
+        LblStatus.Text = message
+        Application.DoEvents()
+    End Sub
+
+    Private Sub UpdateRowCount()
+        If DtGV1.DataSource IsNot Nothing Then
+            Dim dt As DataTable = CType(DtGV1.DataSource, DataTable)
+            LblRowCount.Text = $"Rows: {dt.Rows.Count:N0}"
+        Else
+            LblRowCount.Text = "Rows: 0"
+        End If
+    End Sub
+
+    ' ─────────────────────────────────────────────
+    '  BUTTON 1: Upload Excel
+    ' ─────────────────────────────────────────────
+    Private Sub btnUpload_Click(sender As Object, e As EventArgs) Handles btnUpload.Click
         Using ofd As New OpenFileDialog()
             ofd.Filter = "Excel files|*.xlsx;*.xls;*.xlsm|All files|*.*"
             If ofd.ShowDialog() <> DialogResult.OK Then Return
@@ -16,8 +61,9 @@ Public Class Form2
                 connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & file & ";Extended Properties='Excel 12.0 Xml;HDR=YES;IMEX=1';"
             End If
 
+            LblFilePath.Text = Path.GetFileName(file)
             Cursor = Cursors.WaitCursor
-
+            UpdateStatus("Loading Excel file...")
 
             DtGV1.SuspendLayout()
 
@@ -25,10 +71,8 @@ Public Class Form2
                 Using conn As New OleDbConnection(connString)
                     conn.Open()
 
-
                     Dim schemaTable As DataTable = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, Nothing)
                     Dim sheetName As String = Nothing
-
 
                     If schemaTable IsNot Nothing Then
                         For Each row As DataRow In schemaTable.Rows
@@ -42,6 +86,7 @@ Public Class Form2
 
                     If String.IsNullOrEmpty(sheetName) Then
                         MessageBox.Show("No valid worksheets found.")
+                        UpdateStatus("No worksheets found")
                         Return
                     End If
 
@@ -51,38 +96,29 @@ Public Class Form2
                         Dim dt As New DataTable()
                         adapter.Fill(dt)
 
-
                         DtGV1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
                         DtGV1.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.EnableResizing
 
                         DtGV1.DataSource = dt
+                        UpdateStatus($"✅ Excel loaded: {dt.Rows.Count:N0} rows from '{Path.GetFileName(file)}'")
                     End Using
                 End Using
             Catch ex As Exception
                 MessageBox.Show("Failed to read Excel file: " & ex.Message)
+                UpdateStatus("❌ Error loading Excel")
             Finally
-
                 SetDoubleBuffered(DtGV1)
-
-
                 DtGV1.ResumeLayout()
+                UpdateRowCount()
                 Cursor = Cursors.Default
             End Try
         End Using
     End Sub
 
-
-    Private Sub SetDoubleBuffered(control As Control)
-        Try
-            Dim dgvType As Type = GetType(Control)
-            Dim pi As System.Reflection.PropertyInfo = dgvType.GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance Or System.Reflection.BindingFlags.NonPublic)
-            pi.SetValue(control, True, Nothing)
-        Catch ex As Exception
-
-        End Try
-    End Sub
-
-    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+    ' ─────────────────────────────────────────────
+    '  BUTTON 2: Export DB (TempData_Debug)
+    ' ─────────────────────────────────────────────
+    Private Sub btnExportDB_Click(sender As Object, e As EventArgs) Handles btnExportDB.Click
         If DtGV1.DataSource Is Nothing Then
             MessageBox.Show("No data to insert. Please load data first.")
             Return
@@ -111,6 +147,8 @@ Public Class Form2
         bulkDt.Columns.Add("Customer Email", GetType(String))
 
         Cursor = Cursors.WaitCursor
+        UpdateStatus("💾 Preparing bulk insert...")
+
         Try
             ' Bulk DataTable in memory (much faster than DB calls)
             For Each row As DataRow In dt.Rows
@@ -128,8 +166,11 @@ Public Class Form2
 
             If bulkDt.Rows.Count = 0 Then
                 MessageBox.Show("No valid rows matched to insert.")
+                UpdateStatus("⚠️ No valid rows to insert")
                 Return
             End If
+
+            UpdateStatus($"💾 Creating/Cleaning and Inserting {bulkDt.Rows.Count:N0} rows into TempData_Debug...")
 
             Using conn As New System.Data.SqlClient.SqlConnection(builder.ConnectionString)
                 conn.Open()
@@ -167,6 +208,7 @@ Public Class Form2
                     bulkCopy.WriteToServer(bulkDt)
                 End Using
 
+                UpdateStatus($"✅ Exported {bulkDt.Rows.Count:N0} rows to TempData_Debug")
                 MessageBox.Show($"Successfully bulk inserted {bulkDt.Rows.Count} rows into table TempData_Debug in Univista database.")
 
                 ' Aquí TempData_Debug existe y tiene datos. 
@@ -176,11 +218,13 @@ Public Class Form2
             End Using
 
         Catch ex As Exception
+            UpdateStatus("❌ Export error")
             MessageBox.Show("Error inserting data: " & ex.Message)
         Finally
             Cursor = Cursors.Default
         End Try
     End Sub
+
     ' Helper function to safely parse dates from a DataRow
     Private Function GetSafeDate(row As DataRow, colName As String) As Object
         ' Check if column exists
