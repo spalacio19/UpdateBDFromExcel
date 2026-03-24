@@ -32,6 +32,38 @@ Public Class Form2
         AddHandler btnExportDB.MouseLeave, Sub(s, ev)
                                                  btnExportDB.BackColor = Color.FromArgb(22, 163, 74)
                                              End Sub
+
+        ' Apply modern styling to DataGridView
+        StyleDataGridView(DtGV1)
+    End Sub
+
+    Private Sub StyleDataGridView(dgv As DataGridView)
+        dgv.BackgroundColor = Color.FromArgb(26, 40, 74)
+        dgv.BorderStyle = BorderStyle.None
+        dgv.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal
+        dgv.GridColor = Color.FromArgb(40, 60, 100)
+        
+        dgv.DefaultCellStyle.BackColor = Color.FromArgb(30, 45, 80)
+        dgv.DefaultCellStyle.ForeColor = Color.White
+        dgv.DefaultCellStyle.SelectionBackColor = Color.FromArgb(37, 99, 235)
+        dgv.DefaultCellStyle.SelectionForeColor = Color.White
+        dgv.DefaultCellStyle.Font = New Font("Segoe UI", 9)
+        dgv.DefaultCellStyle.Padding = New Padding(5)
+        
+        dgv.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(26, 40, 74)
+        dgv.AlternatingRowsDefaultCellStyle.ForeColor = Color.White
+        
+        dgv.EnableHeadersVisualStyles = False
+        dgv.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None
+        dgv.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(20, 30, 55)
+        dgv.ColumnHeadersDefaultCellStyle.ForeColor = Color.White
+        dgv.ColumnHeadersDefaultCellStyle.Font = New Font("Segoe UI Semibold", 10, FontStyle.Bold)
+        dgv.ColumnHeadersDefaultCellStyle.Padding = New Padding(5)
+        dgv.ColumnHeadersHeight = 35
+        
+        dgv.RowHeadersVisible = False
+        dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+        dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect
     End Sub
 
     Private Sub SetDoubleBuffered(control As Control)
@@ -121,7 +153,8 @@ Public Class Form2
                     Return
                 End If
 
-                DtGV1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
+                ' Allow Columns to Fill Screen based on StyleDataGridView
+                DtGV1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
                 DtGV1.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.EnableResizing
 
                 DtGV1.DataSource = dt

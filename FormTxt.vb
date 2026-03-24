@@ -26,6 +26,38 @@ Public Class FormTxt
         ' Hover effects for Insert button (green)
         AddHandler BtnInsert.MouseEnter, Sub(s, ev) BtnInsert.BackColor = Color.FromArgb(16, 130, 58)
         AddHandler BtnInsert.MouseLeave, Sub(s, ev) BtnInsert.BackColor = Color.FromArgb(22, 163, 74)
+
+        ' Apply modern styling to DataGridViews
+        StyleDataGridView(DtGV1)
+        StyleDataGridView(DtGV2)
+    End Sub
+
+    Private Sub StyleDataGridView(dgv As DataGridView)
+        dgv.BackgroundColor = Color.FromArgb(26, 40, 74)
+        dgv.BorderStyle = BorderStyle.None
+        dgv.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal
+        dgv.GridColor = Color.FromArgb(40, 60, 100)
+        
+        dgv.DefaultCellStyle.BackColor = Color.FromArgb(30, 45, 80)
+        dgv.DefaultCellStyle.ForeColor = Color.White
+        dgv.DefaultCellStyle.SelectionBackColor = Color.FromArgb(37, 99, 235)
+        dgv.DefaultCellStyle.SelectionForeColor = Color.White
+        dgv.DefaultCellStyle.Font = New Font("Segoe UI", 9)
+        dgv.DefaultCellStyle.Padding = New Padding(5)
+        
+        dgv.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(26, 40, 74)
+        dgv.AlternatingRowsDefaultCellStyle.ForeColor = Color.White
+        
+        dgv.EnableHeadersVisualStyles = False
+        dgv.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None
+        dgv.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(20, 30, 55)
+        dgv.ColumnHeadersDefaultCellStyle.ForeColor = Color.White
+        dgv.ColumnHeadersDefaultCellStyle.Font = New Font("Segoe UI Semibold", 10, FontStyle.Bold)
+        dgv.ColumnHeadersDefaultCellStyle.Padding = New Padding(5)
+        dgv.ColumnHeadersHeight = 35
+        
+        dgv.RowHeadersVisible = False
+        dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect
     End Sub
 
     Private Sub UpdateStatus(message As String)
@@ -88,7 +120,7 @@ Public Class FormTxt
                     Return resultTable
                 End Function)
 
-                DtGV1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
+                DtGV1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
                 DtGV1.DataSource = dt
                 SetDoubleBuffered(DtGV1)
                 BtnPreview.Enabled = True
