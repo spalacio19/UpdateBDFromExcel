@@ -100,9 +100,9 @@ Partial Class FormMain
         '
         ' btnExportTxt
         '
-        btnExportTxt.BackColor = System.Drawing.Color.FromArgb(5, 150, 105)
+        btnExportTxt.BackColor = System.Drawing.Color.FromArgb(37, 99, 235)
         btnExportTxt.FlatAppearance.BorderSize = 0
-        btnExportTxt.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(4, 120, 84)
+        btnExportTxt.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(29, 78, 187)
         btnExportTxt.FlatStyle = FlatStyle.Flat
         btnExportTxt.Font = New System.Drawing.Font("Segoe UI", 13, System.Drawing.FontStyle.Bold)
         btnExportTxt.ForeColor = System.Drawing.Color.White

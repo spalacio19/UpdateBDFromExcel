@@ -11,10 +11,10 @@ Public Class FormMain
 
         ' Hover effects for TXT button (green)
         AddHandler btnExportTxt.MouseEnter, Sub(s, ev)
-                                                btnExportTxt.BackColor = System.Drawing.Color.FromArgb(4, 120, 84)
+                                                btnExportTxt.BackColor = System.Drawing.Color.FromArgb(29, 78, 187)
                                             End Sub
         AddHandler btnExportTxt.MouseLeave, Sub(s, ev)
-                                                btnExportTxt.BackColor = System.Drawing.Color.FromArgb(5, 150, 105)
+                                                btnExportTxt.BackColor = System.Drawing.Color.FromArgb(37, 99, 235)
                                             End Sub
     End Sub
 
