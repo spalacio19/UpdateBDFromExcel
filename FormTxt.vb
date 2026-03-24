@@ -120,7 +120,8 @@ Public Class FormTxt
                     Return resultTable
                 End Function)
 
-                DtGV1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+                ' Use default or DisplayedCells width to match DtGV2
+                DtGV1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells
                 DtGV1.DataSource = dt
                 SetDoubleBuffered(DtGV1)
                 BtnPreview.Enabled = True
