@@ -26,9 +26,9 @@ Partial Class FormTxt
         PanelHeader = New Panel()
         LblTitle = New Label()
         PanelToolbar = New Panel()
-        btnUpload = New Button()
-        BtnPreview = New Button()
-        BtnInsert = New Button()
+        btnUpload = New FontAwesome.Sharp.IconButton()
+        BtnPreview = New FontAwesome.Sharp.IconButton()
+        BtnInsert = New FontAwesome.Sharp.IconButton()
         LblFilePath = New Label()
         PanelContent = New Panel()
         SplitContainer1 = New SplitContainer()
@@ -71,7 +71,7 @@ Partial Class FormTxt
         LblTitle.Name = "LblTitle"
         LblTitle.Size = New Size(361, 30)
         LblTitle.TabIndex = 0
-        LblTitle.Text = "📋  Do Not Call — Import Wizard"
+        LblTitle.Text = "Do Not Call — Import Wizard"
         ' 
         ' PanelToolbar
         ' 
@@ -96,11 +96,17 @@ Partial Class FormTxt
         btnUpload.FlatStyle = FlatStyle.Flat
         btnUpload.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
         btnUpload.ForeColor = Color.White
+        btnUpload.IconChar = FontAwesome.Sharp.IconChar.FolderOpen
+        btnUpload.IconColor = Color.White
+        btnUpload.IconFont = FontAwesome.Sharp.IconFont.Auto
+        btnUpload.IconSize = 24
+        btnUpload.ImageAlign = ContentAlignment.MiddleLeft
         btnUpload.Location = New Point(15, 12)
         btnUpload.Name = "btnUpload"
         btnUpload.Size = New Size(150, 36)
         btnUpload.TabIndex = 0
-        btnUpload.Text = "📂  Upload Txt"
+        btnUpload.Text = "  Upload Txt"
+        btnUpload.TextImageRelation = TextImageRelation.ImageBeforeText
         btnUpload.UseVisualStyleBackColor = False
         ' 
         ' BtnPreview
@@ -113,11 +119,17 @@ Partial Class FormTxt
         BtnPreview.FlatStyle = FlatStyle.Flat
         BtnPreview.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
         BtnPreview.ForeColor = Color.White
+        BtnPreview.IconChar = FontAwesome.Sharp.IconChar.Eye
+        BtnPreview.IconColor = Color.White
+        BtnPreview.IconFont = FontAwesome.Sharp.IconFont.Auto
+        BtnPreview.IconSize = 24
+        BtnPreview.ImageAlign = ContentAlignment.MiddleLeft
         BtnPreview.Location = New Point(180, 12)
         BtnPreview.Name = "BtnPreview"
         BtnPreview.Size = New Size(150, 36)
         BtnPreview.TabIndex = 1
-        BtnPreview.Text = "👁  Preview"
+        BtnPreview.Text = "  Preview"
+        BtnPreview.TextImageRelation = TextImageRelation.ImageBeforeText
         BtnPreview.UseVisualStyleBackColor = False
         ' 
         ' BtnInsert
@@ -130,11 +142,17 @@ Partial Class FormTxt
         BtnInsert.FlatStyle = FlatStyle.Flat
         BtnInsert.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
         BtnInsert.ForeColor = Color.Black
+        BtnInsert.IconChar = FontAwesome.Sharp.IconChar.Check
+        BtnInsert.IconColor = Color.Black
+        BtnInsert.IconFont = FontAwesome.Sharp.IconFont.Auto
+        BtnInsert.IconSize = 24
+        BtnInsert.ImageAlign = ContentAlignment.MiddleLeft
         BtnInsert.Location = New Point(345, 12)
         BtnInsert.Name = "BtnInsert"
         BtnInsert.Size = New Size(170, 36)
         BtnInsert.TabIndex = 2
-        BtnInsert.Text = "✔  Insert into DB"
+        BtnInsert.Text = "  Insert into DB"
+        BtnInsert.TextImageRelation = TextImageRelation.ImageBeforeText
         BtnInsert.UseVisualStyleBackColor = False
         ' 
         ' LblFilePath
@@ -341,9 +359,9 @@ Partial Class FormTxt
     Friend WithEvents PanelHeader As Panel
     Friend WithEvents LblTitle As Label
     Friend WithEvents PanelToolbar As Panel
-    Friend WithEvents btnUpload As Button
-    Friend WithEvents BtnPreview As Button
-    Friend WithEvents BtnInsert As Button
+    Friend WithEvents btnUpload As FontAwesome.Sharp.IconButton
+    Friend WithEvents BtnPreview As FontAwesome.Sharp.IconButton
+    Friend WithEvents BtnInsert As FontAwesome.Sharp.IconButton
     Friend WithEvents LblFilePath As Label
     Friend WithEvents PanelContent As Panel
     Friend WithEvents SplitContainer1 As SplitContainer

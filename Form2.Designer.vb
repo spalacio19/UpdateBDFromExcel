@@ -2,7 +2,6 @@
 Partial Class Form2
     Inherits System.Windows.Forms.Form
 
-    'Form overrides dispose to clean up the component list.
     <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(disposing As Boolean)
         Try
@@ -14,7 +13,6 @@ Partial Class Form2
         End Try
     End Sub
 
-    'Required by the Windows Form Designer
     Private components As System.ComponentModel.IContainer
 
     <System.Diagnostics.DebuggerStepThrough()>
@@ -23,8 +21,8 @@ Partial Class Form2
         PanelHeader = New Panel()
         LblTitle = New Label()
         PanelToolbar = New Panel()
-        btnUpload = New Button()
-        btnExportDB = New Button()
+        btnUpload = New FontAwesome.Sharp.IconButton()
+        btnExportDB = New FontAwesome.Sharp.IconButton()
         LblFilePath = New Label()
         DtGV1 = New DataGridView()
         PanelFooter = New Panel()
@@ -56,7 +54,7 @@ Partial Class Form2
         LblTitle.Name = "LblTitle"
         LblTitle.Size = New Size(316, 30)
         LblTitle.TabIndex = 0
-        LblTitle.Text = "📂  Export Excel to Database"
+        LblTitle.Text = "Export Excel to Database"
         ' 
         ' PanelToolbar
         ' 
@@ -80,11 +78,17 @@ Partial Class Form2
         btnUpload.FlatStyle = FlatStyle.Flat
         btnUpload.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
         btnUpload.ForeColor = Color.White
+        btnUpload.IconChar = FontAwesome.Sharp.IconChar.FolderOpen
+        btnUpload.IconColor = Color.White
+        btnUpload.IconFont = FontAwesome.Sharp.IconFont.Auto
+        btnUpload.IconSize = 24
+        btnUpload.ImageAlign = ContentAlignment.MiddleLeft
         btnUpload.Location = New Point(15, 12)
         btnUpload.Name = "btnUpload"
         btnUpload.Size = New Size(150, 36)
         btnUpload.TabIndex = 0
-        btnUpload.Text = "📂  Upload Excel"
+        btnUpload.Text = "  Upload Excel"
+        btnUpload.TextImageRelation = TextImageRelation.ImageBeforeText
         btnUpload.UseVisualStyleBackColor = False
         ' 
         ' btnExportDB
@@ -96,11 +100,17 @@ Partial Class Form2
         btnExportDB.FlatStyle = FlatStyle.Flat
         btnExportDB.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
         btnExportDB.ForeColor = Color.Black
+        btnExportDB.IconChar = FontAwesome.Sharp.IconChar.Database
+        btnExportDB.IconColor = Color.Black
+        btnExportDB.IconFont = FontAwesome.Sharp.IconFont.Auto
+        btnExportDB.IconSize = 24
+        btnExportDB.ImageAlign = ContentAlignment.MiddleLeft
         btnExportDB.Location = New Point(180, 12)
         btnExportDB.Name = "btnExportDB"
-        btnExportDB.Size = New Size(180, 36)
+        btnExportDB.Size = New Size(200, 36)
         btnExportDB.TabIndex = 1
-        btnExportDB.Text = "💾  Export directly to DB"
+        btnExportDB.Text = "  Export directly to DB"
+        btnExportDB.TextImageRelation = TextImageRelation.ImageBeforeText
         btnExportDB.UseVisualStyleBackColor = False
         ' 
         ' LblFilePath
@@ -108,7 +118,7 @@ Partial Class Form2
         LblFilePath.AutoSize = True
         LblFilePath.Font = New Font("Segoe UI", 9F)
         LblFilePath.ForeColor = Color.FromArgb(CByte(160), CByte(180), CByte(220))
-        LblFilePath.Location = New Point(380, 20)
+        LblFilePath.Location = New Point(400, 20)
         LblFilePath.Name = "LblFilePath"
         LblFilePath.Size = New Size(81, 15)
         LblFilePath.TabIndex = 2
@@ -191,8 +201,8 @@ Partial Class Form2
     Friend WithEvents PanelHeader As Panel
     Friend WithEvents LblTitle As Label
     Friend WithEvents PanelToolbar As Panel
-    Friend WithEvents btnUpload As Button
-    Friend WithEvents btnExportDB As Button
+    Friend WithEvents btnUpload As FontAwesome.Sharp.IconButton
+    Friend WithEvents btnExportDB As FontAwesome.Sharp.IconButton
     Friend WithEvents LblFilePath As Label
     Friend WithEvents DtGV1 As DataGridView
     Friend WithEvents PanelFooter As Panel

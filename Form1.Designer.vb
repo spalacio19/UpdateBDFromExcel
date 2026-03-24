@@ -2,7 +2,6 @@
 Partial Class Form1
     Inherits System.Windows.Forms.Form
 
-    'Form overrides dispose to clean up the component list.
     <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(disposing As Boolean)
         Try
@@ -14,7 +13,6 @@ Partial Class Form1
         End Try
     End Sub
 
-    'Required by the Windows Form Designer
     Private components As System.ComponentModel.IContainer
 
     <System.Diagnostics.DebuggerStepThrough()>
@@ -23,9 +21,9 @@ Partial Class Form1
         PanelHeader = New Panel()
         LblTitle = New Label()
         PanelToolbar = New Panel()
-        btnUpload = New Button()
-        btnReadAzure = New Button()
-        btnInsertSnapshot = New Button()
+        btnUpload = New FontAwesome.Sharp.IconButton()
+        btnReadAzure = New FontAwesome.Sharp.IconButton()
+        btnInsertSnapshot = New FontAwesome.Sharp.IconButton()
         LblFilePath = New Label()
         DtGV1 = New DataGridView()
         PanelFooter = New Panel()
@@ -57,7 +55,7 @@ Partial Class Form1
         LblTitle.Name = "LblTitle"
         LblTitle.Size = New Size(310, 30)
         LblTitle.TabIndex = 0
-        LblTitle.Text = "📑  Policy In-Force Snapshot"
+        LblTitle.Text = "Policy In-Force Snapshot"
         ' 
         ' PanelToolbar
         ' 
@@ -82,11 +80,17 @@ Partial Class Form1
         btnUpload.FlatStyle = FlatStyle.Flat
         btnUpload.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
         btnUpload.ForeColor = Color.White
+        btnUpload.IconChar = FontAwesome.Sharp.IconChar.FolderOpen
+        btnUpload.IconColor = Color.White
+        btnUpload.IconFont = FontAwesome.Sharp.IconFont.Auto
+        btnUpload.IconSize = 24
+        btnUpload.ImageAlign = ContentAlignment.MiddleLeft
         btnUpload.Location = New Point(15, 12)
         btnUpload.Name = "btnUpload"
         btnUpload.Size = New Size(150, 36)
         btnUpload.TabIndex = 0
-        btnUpload.Text = "📂  Upload Excel"
+        btnUpload.Text = "  Upload Excel"
+        btnUpload.TextImageRelation = TextImageRelation.ImageBeforeText
         btnUpload.UseVisualStyleBackColor = False
         ' 
         ' btnReadAzure
@@ -98,11 +102,17 @@ Partial Class Form1
         btnReadAzure.FlatStyle = FlatStyle.Flat
         btnReadAzure.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
         btnReadAzure.ForeColor = Color.White
+        btnReadAzure.IconChar = FontAwesome.Sharp.IconChar.CloudDownloadAlt
+        btnReadAzure.IconColor = Color.White
+        btnReadAzure.IconFont = FontAwesome.Sharp.IconFont.Auto
+        btnReadAzure.IconSize = 24
+        btnReadAzure.ImageAlign = ContentAlignment.MiddleLeft
         btnReadAzure.Location = New Point(180, 12)
         btnReadAzure.Name = "btnReadAzure"
         btnReadAzure.Size = New Size(170, 36)
         btnReadAzure.TabIndex = 1
-        btnReadAzure.Text = "🔍  Read from Azure"
+        btnReadAzure.Text = "  Read from Azure"
+        btnReadAzure.TextImageRelation = TextImageRelation.ImageBeforeText
         btnReadAzure.UseVisualStyleBackColor = False
         ' 
         ' btnInsertSnapshot
@@ -114,11 +124,17 @@ Partial Class Form1
         btnInsertSnapshot.FlatStyle = FlatStyle.Flat
         btnInsertSnapshot.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
         btnInsertSnapshot.ForeColor = Color.Black
+        btnInsertSnapshot.IconChar = FontAwesome.Sharp.IconChar.Save
+        btnInsertSnapshot.IconColor = Color.Black
+        btnInsertSnapshot.IconFont = FontAwesome.Sharp.IconFont.Auto
+        btnInsertSnapshot.IconSize = 24
+        btnInsertSnapshot.ImageAlign = ContentAlignment.MiddleLeft
         btnInsertSnapshot.Location = New Point(365, 12)
         btnInsertSnapshot.Name = "btnInsertSnapshot"
         btnInsertSnapshot.Size = New Size(170, 36)
         btnInsertSnapshot.TabIndex = 2
-        btnInsertSnapshot.Text = "💾  Insert Snapshot"
+        btnInsertSnapshot.Text = "  Insert Snapshot"
+        btnInsertSnapshot.TextImageRelation = TextImageRelation.ImageBeforeText
         btnInsertSnapshot.UseVisualStyleBackColor = False
         ' 
         ' LblFilePath
@@ -209,9 +225,9 @@ Partial Class Form1
     Friend WithEvents PanelHeader As Panel
     Friend WithEvents LblTitle As Label
     Friend WithEvents PanelToolbar As Panel
-    Friend WithEvents btnUpload As Button
-    Friend WithEvents btnReadAzure As Button
-    Friend WithEvents btnInsertSnapshot As Button
+    Friend WithEvents btnUpload As FontAwesome.Sharp.IconButton
+    Friend WithEvents btnReadAzure As FontAwesome.Sharp.IconButton
+    Friend WithEvents btnInsertSnapshot As FontAwesome.Sharp.IconButton
     Friend WithEvents LblFilePath As Label
     Friend WithEvents DtGV1 As DataGridView
     Friend WithEvents PanelFooter As Panel
