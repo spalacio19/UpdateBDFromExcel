@@ -1,4 +1,4 @@
-﻿Imports System.IO
+Imports System.IO
 
 Public Class FormTxt
 
@@ -616,9 +616,8 @@ Public Class FormTxt
                 ' ── Log the export ────────────────────────────────────────
                 Dim logSql As String =
                     "INSERT INTO DNC.dbo.DoNotCallExportLog " &
-                    "( ExportDate, ExportedByUser, SourceFileName, RecordsExported, RecordsInserted, RecordsUpdated) " &
-                    "SELECT @ExportDate, @ExportedByUser, @SourceFileName, @RecordsExported, @RecordsInserted, @RecordsUpdated " &
-                    "FROM DNC.dbo.DoNotCallExportLog"
+                    "(ExportDate, ExportedByUser, SourceFileName, RecordsExported, RecordsInserted, RecordsUpdated) " &
+                    "VALUES (@ExportDate, @ExportedByUser, @SourceFileName, @RecordsExported, @RecordsInserted, @RecordsUpdated);"
 
                 Using cmdLog As New System.Data.SqlClient.SqlCommand(logSql, conn)
                     cmdLog.Parameters.AddWithValue("@ExportDate", DateTime.Now)
