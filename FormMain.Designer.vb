@@ -20,11 +20,11 @@ Partial Class FormMain
         PanelHeader = New Panel()
         LblTitle = New Label()
         PanelContent = New Panel()
-        btnExportExcel = New Button()
+        btnExportExcel = New FontAwesome.Sharp.IconButton()
         LblExcelDesc = New Label()
-        btnExportTxt = New Button()
+        btnExportTxt = New FontAwesome.Sharp.IconButton()
         LblTxtDesc = New Label()
-        btnPolicySnapshot = New Button()
+        btnPolicySnapshot = New FontAwesome.Sharp.IconButton()
         LblPolicyDesc = New Label()
         PanelFooter = New Panel()
         LblFooter = New Label()
@@ -80,13 +80,19 @@ Partial Class FormMain
         btnExportExcel.FlatStyle = FlatStyle.Flat
         btnExportExcel.Font = New Font("Segoe UI", 13F, FontStyle.Bold)
         btnExportExcel.ForeColor = Color.FromArgb(CByte(224), CByte(224), CByte(224))
+        btnExportExcel.IconChar = FontAwesome.Sharp.IconChar.FileExcel
+        btnExportExcel.IconColor = Color.FromArgb(CByte(224), CByte(224), CByte(224))
+        btnExportExcel.IconFont = FontAwesome.Sharp.IconFont.Auto
+        btnExportExcel.IconSize = 32
+        btnExportExcel.ImageAlign = ContentAlignment.MiddleLeft
         btnExportExcel.Location = New Point(30, 223)
         btnExportExcel.Name = "btnExportExcel"
         btnExportExcel.Padding = New Padding(15, 0, 0, 0)
         btnExportExcel.Size = New Size(440, 65)
         btnExportExcel.TabIndex = 5
-        btnExportExcel.Text = "📂   Export Excel to DB (TempData_Debug)"
+        btnExportExcel.Text = "  Export Excel to DB (TempData_Debug)"
         btnExportExcel.TextAlign = ContentAlignment.MiddleLeft
+        btnExportExcel.TextImageRelation = TextImageRelation.ImageBeforeText
         btnExportExcel.UseVisualStyleBackColor = False
         ' 
         ' LblExcelDesc
@@ -109,13 +115,19 @@ Partial Class FormMain
         btnExportTxt.FlatStyle = FlatStyle.Flat
         btnExportTxt.Font = New Font("Segoe UI", 13F, FontStyle.Bold)
         btnExportTxt.ForeColor = Color.FromArgb(CByte(224), CByte(224), CByte(224))
+        btnExportTxt.IconChar = FontAwesome.Sharp.IconChar.ClipboardList
+        btnExportTxt.IconColor = Color.FromArgb(CByte(224), CByte(224), CByte(224))
+        btnExportTxt.IconFont = FontAwesome.Sharp.IconFont.Auto
+        btnExportTxt.IconSize = 32
+        btnExportTxt.ImageAlign = ContentAlignment.MiddleLeft
         btnExportTxt.Location = New Point(30, 15)
         btnExportTxt.Name = "btnExportTxt"
         btnExportTxt.Padding = New Padding(15, 0, 0, 0)
         btnExportTxt.Size = New Size(440, 65)
         btnExportTxt.TabIndex = 1
-        btnExportTxt.Text = "📋   Import Do Not Call List"
+        btnExportTxt.Text = "  Import Do Not Call List"
         btnExportTxt.TextAlign = ContentAlignment.MiddleLeft
+        btnExportTxt.TextImageRelation = TextImageRelation.ImageBeforeText
         btnExportTxt.UseVisualStyleBackColor = False
         ' 
         ' LblTxtDesc
@@ -138,13 +150,19 @@ Partial Class FormMain
         btnPolicySnapshot.FlatStyle = FlatStyle.Flat
         btnPolicySnapshot.Font = New Font("Segoe UI", 13F, FontStyle.Bold)
         btnPolicySnapshot.ForeColor = Color.FromArgb(CByte(224), CByte(224), CByte(224))
+        btnPolicySnapshot.IconChar = FontAwesome.Sharp.IconChar.Database
+        btnPolicySnapshot.IconColor = Color.FromArgb(CByte(224), CByte(224), CByte(224))
+        btnPolicySnapshot.IconFont = FontAwesome.Sharp.IconFont.Auto
+        btnPolicySnapshot.IconSize = 32
+        btnPolicySnapshot.ImageAlign = ContentAlignment.MiddleLeft
         btnPolicySnapshot.Location = New Point(30, 115)
         btnPolicySnapshot.Name = "btnPolicySnapshot"
         btnPolicySnapshot.Padding = New Padding(15, 0, 0, 0)
         btnPolicySnapshot.Size = New Size(440, 65)
         btnPolicySnapshot.TabIndex = 3
-        btnPolicySnapshot.Text = "📑   Policy In Force Snapshot"
+        btnPolicySnapshot.Text = "  Policy In Force Snapshot"
         btnPolicySnapshot.TextAlign = ContentAlignment.MiddleLeft
+        btnPolicySnapshot.TextImageRelation = TextImageRelation.ImageBeforeText
         btnPolicySnapshot.UseVisualStyleBackColor = False
         ' 
         ' LblPolicyDesc
@@ -192,7 +210,7 @@ Partial Class FormMain
         FormBorderStyle = FormBorderStyle.FixedSingle
         MaximizeBox = False
         Name = "FormMain"
-        StartPosition = FormStartPosition.CenterScreen
+        StartPosition = StartPosition.CenterScreen
         Text = "Data Manager"
         PanelHeader.ResumeLayout(False)
         PanelHeader.PerformLayout()
@@ -201,8 +219,8 @@ Partial Class FormMain
         PanelFooter.ResumeLayout(False)
         ResumeLayout(False)
     End Sub
-    Friend WithEvents btnExportTxt As Button
-    Friend WithEvents btnPolicySnapshot As Button
+    Friend WithEvents btnExportTxt As FontAwesome.Sharp.IconButton
+    Friend WithEvents btnPolicySnapshot As FontAwesome.Sharp.IconButton
     Friend PanelHeader As Panel
     Friend LblTitle As Label
     Friend PanelContent As Panel
@@ -210,7 +228,7 @@ Partial Class FormMain
     Friend LblPolicyDesc As Label
     Friend PanelFooter As Panel
     Friend LblFooter As Label
-    Friend WithEvents btnExportExcel As Button
+    Friend WithEvents btnExportExcel As FontAwesome.Sharp.IconButton
     Friend WithEvents LblExcelDesc As Label
 
 End Class
