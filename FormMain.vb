@@ -16,11 +16,14 @@ Public Class FormMain
         AddHandler btnExportTxt.MouseLeave, Sub(s, ev)
                                                 btnExportTxt.BackColor = System.Drawing.Color.FromArgb(37, 99, 235)
                                             End Sub
-    End Sub
 
-    Private Sub btnExportExcel_Click(sender As Object, e As EventArgs) Handles btnExportExcel.Click
-        Dim f As New Form2()
-        f.Show()
+        ' Hover effects for Policy Snapshot button (blue)
+        AddHandler btnPolicySnapshot.MouseEnter, Sub(s, ev)
+                                                     btnPolicySnapshot.BackColor = System.Drawing.Color.FromArgb(29, 78, 187)
+                                                 End Sub
+        AddHandler btnPolicySnapshot.MouseLeave, Sub(s, ev)
+                                                     btnPolicySnapshot.BackColor = System.Drawing.Color.FromArgb(37, 99, 235)
+                                                 End Sub
     End Sub
 
     Private Sub btnExportTxt_Click(sender As Object, e As EventArgs) Handles btnExportTxt.Click
@@ -28,4 +31,13 @@ Public Class FormMain
         f.Show()
     End Sub
 
+    Private Sub btnPolicySnapshot_Click(sender As Object, e As EventArgs) Handles btnPolicySnapshot.Click
+        Dim f As New Form1()
+        f.Show()
+    End Sub
+
+    Private Sub btnExportExcel_Click_1(sender As Object, e As EventArgs) Handles btnExportExcel.Click
+        Dim f As New Form2()
+        f.Show()
+    End Sub
 End Class
