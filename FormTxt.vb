@@ -2,23 +2,48 @@ Imports System.IO
 
 Public Class FormTxt
 
+    Private Sub FormTxt_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ' Hover effects for Upload button (blue)
+        AddHandler btnUpload.MouseEnter, Sub(s, ev) btnUpload.BackColor = Color.FromArgb(29, 78, 187)
+        AddHandler btnUpload.MouseLeave, Sub(s, ev) btnUpload.BackColor = Color.FromArgb(37, 99, 235)
+
+        ' Hover effects for Preview button (blue)
+        AddHandler BtnPreview.MouseEnter, Sub(s, ev) BtnPreview.BackColor = Color.FromArgb(29, 78, 187)
+        AddHandler BtnPreview.MouseLeave, Sub(s, ev) BtnPreview.BackColor = Color.FromArgb(37, 99, 235)
+
+        ' Hover effects for Insert button (green)
+        AddHandler BtnInsert.MouseEnter, Sub(s, ev) BtnInsert.BackColor = Color.FromArgb(16, 130, 58)
+        AddHandler BtnInsert.MouseLeave, Sub(s, ev) BtnInsert.BackColor = Color.FromArgb(22, 163, 74)
+    End Sub
+
+    Private Sub UpdateStatus(message As String)
+        LblStatus.Text = message
+        Application.DoEvents()
+    End Sub
+
+    Private Sub UpdateRowCount()
+        Dim c1 As Integer = If(DtGV1.DataSource IsNot Nothing, CType(DtGV1.DataSource, DataTable).Rows.Count, 0)
+        Dim c2 As Integer = If(DtGV2.DataSource IsNot Nothing, CType(DtGV2.DataSource, DataTable).Rows.Count, 0)
+        LblRowCount.Text = $"Raw: {c1:N0} | Preview: {c2:N0}"
+    End Sub
+
     ' ─────────────────────────────────────────────────────────────────────────
-    ' Button1 – Upload Excel → show raw data in DtGV1
+    ' btnUpload – Upload TXT/CSV → show raw data in DtGV1
     ' ─────────────────────────────────────────────────────────────────────────
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+    Private Sub btnUpload_Click(sender As Object, e As EventArgs) Handles btnUpload.Click
         Using ofd As New OpenFileDialog()
             ofd.Filter = "Text/CSV files|*.txt;*.csv|All files|*.*"
             If ofd.ShowDialog() <> DialogResult.OK Then Return
 
             Dim file = ofd.FileName
-            Label1.Text = file
-            Label1.ForeColor = System.Drawing.Color.Black
+            LblFilePath.Text = Path.GetFileName(file)
 
             DtGV1.SuspendLayout()
             DtGV2.DataSource = Nothing
             BtnPreview.Enabled = False
             BtnInsert.Enabled = False
             Cursor = Cursors.WaitCursor
+            UpdateStatus("Loading TXT/CSV file...")
 
             Try
                 Dim dt As New DataTable()
@@ -53,12 +78,15 @@ Public Class FormTxt
                 DtGV1.DataSource = dt
                 SetDoubleBuffered(DtGV1)
                 BtnPreview.Enabled = True
-                LblMapped.Text = $"TXT Data (raw) — {dt.Rows.Count} rows:"
+                LblMapped.Text = $"TXT Data (raw) — {dt.Rows.Count:N0} rows:"
+                UpdateStatus($"✅ File loaded: {dt.Rows.Count:N0} rows")
 
             Catch ex As Exception
                 MessageBox.Show("Failed to read TXT file: " & ex.Message)
+                UpdateStatus("❌ Error loading file")
             Finally
                 DtGV1.ResumeLayout()
+                UpdateRowCount()
                 Cursor = Cursors.Default
             End Try
         End Using
@@ -84,180 +112,22 @@ Public Class FormTxt
         Return result.ToArray()
     End Function
 
-
     ' ─────────────────────────────────────────────────────────────────────────
     ' BtnPreview – Map columns, check duplicates in DB, show in DtGV2
     ' ─────────────────────────────────────────────────────────────────────────
     Private Sub BtnPreview_Click(sender As Object, e As EventArgs) Handles BtnPreview.Click
+        UpdateStatus("🔍 Generating preview and checking duplicates...")
         UpdatePreviewData()
+        UpdateRowCount()
     End Sub
 
     Private Sub LoadPreviewData()
-        If DtGV1.DataSource Is Nothing Then
-            MessageBox.Show("Please upload an  file first.")
-            Return
-        End If
-
-        Dim dtExcel As DataTable = CType(DtGV1.DataSource, DataTable)
-
-        For Each col As String In {"AreaCode", "LocalNumber"}
-            If Not HasColumn(dtExcel, col) Then
-                MessageBox.Show($"Required column '{col}' not found in the Excel file." & vbCrLf &
-                                "Make sure the header names match exactly.")
-                Return
-            End If
-        Next
-
-        Dim defaultUser As String = Environment.UserName
-        Dim defaultDate As DateTime = DateTime.Now
-        Dim skipped As Integer = 0
-
-        ' ── Build in-memory preview table ─────────────────────────────────
-        Dim previewDt As New DataTable()
-        previewDt.Columns.Add("Estado", GetType(String))        ' NEW — duplicate flag
-        previewDt.Columns.Add("AreaCode", GetType(String))
-        previewDt.Columns.Add("LocalNumber", GetType(String))
-        previewDt.Columns.Add("State", GetType(String))
-        previewDt.Columns.Add("AddedDate", GetType(DateTime))
-        previewDt.Columns.Add("AddedByUser", GetType(String))
-        previewDt.Columns.Add("Source", GetType(String))
-        previewDt.Columns.Add("Notes", GetType(String))
-
-        For Each row As DataRow In dtExcel.Rows
-            Dim areaCode As String = GetStr(row, "AreaCode")
-            Dim localNumber As String = GetStr(row, "LocalNumber")
-
-            If String.IsNullOrWhiteSpace(areaCode) OrElse String.IsNullOrWhiteSpace(localNumber) Then
-                skipped += 1
-                Continue For
-            End If
-
-            Dim newRow As DataRow = previewDt.NewRow()
-            newRow("Estado") = "✔ Nuevo"           ' default — will update after DB check
-            newRow("AreaCode") = areaCode.Trim()
-            newRow("LocalNumber") = localNumber.Trim()
-
-            Dim stateVal As String = GetStr(row, "State")
-            newRow("State") = If(String.IsNullOrWhiteSpace(stateVal), DBNull.Value, CObj(stateVal.Trim()))
-
-            Dim addedDateVal As Object = GetSafeDate(row, "AddedDate")
-            newRow("AddedDate") = If(addedDateVal Is DBNull.Value, CObj(defaultDate), addedDateVal)
-
-            Dim addedBy As String = GetStr(row, "AddedByUser")
-            newRow("AddedByUser") = If(String.IsNullOrWhiteSpace(addedBy), defaultUser, addedBy.Trim())
-
-            Dim sourceVal As String = GetStr(row, "Source")
-            newRow("Source") = If(String.IsNullOrWhiteSpace(sourceVal), DBNull.Value, CObj(sourceVal.Trim()))
-
-            Dim notesVal As String = GetStr(row, "Notes")
-            newRow("Notes") = If(String.IsNullOrWhiteSpace(notesVal), DBNull.Value, CObj(notesVal.Trim()))
-
-            previewDt.Rows.Add(newRow)
-        Next
-
-        If previewDt.Rows.Count = 0 Then
-            MessageBox.Show("No valid rows to preview (AreaCode and LocalNumber are required in every row).")
-            BtnInsert.Enabled = False
-            Return
-        End If
-
-        ' ── Check duplicates against DB (temp-table + JOIN — scales to any size) ──
-        Cursor = Cursors.WaitCursor
-        Try
-            Dim existingKeys As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
-
-            Dim builder As New System.Data.SqlClient.SqlConnectionStringBuilder()
-            builder.DataSource = "172.190.120.3"
-            builder.InitialCatalog = "DNC"
-            builder.UserID = "sa"
-            builder.Password = "Dell2014#"
-            builder.TrustServerCertificate = True
-
-            ' Build an in-memory table with just the keys we want to check
-            Dim keysDt As New DataTable()
-            keysDt.Columns.Add("AreaCode", GetType(String))
-            keysDt.Columns.Add("LocalNumber", GetType(String))
-            For Each row As DataRow In previewDt.Rows
-                keysDt.Rows.Add(row("AreaCode").ToString().Trim(),
-                                row("LocalNumber").ToString().Trim())
-            Next
-
-            Using conn As New System.Data.SqlClient.SqlConnection(builder.ConnectionString)
-                conn.Open()
-
-                ' 1) Create a temp table for the incoming keys
-                Dim createTmp As String =
-                    "CREATE TABLE #tmpCheck (AreaCode VARCHAR(10), LocalNumber VARCHAR(20));"
-                Using cmd As New System.Data.SqlClient.SqlCommand(createTmp, conn)
-                    cmd.ExecuteNonQuery()
-                End Using
-
-                ' 2) Bulk-insert the incoming keys into the temp table (fast, no query-size limit)
-                Using bc As New System.Data.SqlClient.SqlBulkCopy(conn)
-                    bc.DestinationTableName = "#tmpCheck"
-                    bc.ColumnMappings.Add("AreaCode", "AreaCode")
-                    bc.ColumnMappings.Add("LocalNumber", "LocalNumber")
-                    bc.BulkCopyTimeout = 120
-                    bc.WriteToServer(keysDt)
-                End Using
-
-                ' 3) JOIN to find which keys already exist in the real table
-                Dim checkSql As String =
-                    "SELECT t.AreaCode, t.LocalNumber " &
-                    "FROM #tmpCheck t " &
-                    "INNER JOIN DNC.dbo.DoNotCallNumbers d " &
-                    "  ON d.AreaCode = t.AreaCode AND d.LocalNumber = t.LocalNumber;"
-
-                Using cmd As New SqlCommand(checkSql, conn)
-                    cmd.CommandTimeout = 300
-                    Using reader = cmd.ExecuteReader()
-                        While reader.Read()
-                            Dim key As String = reader("AreaCode").ToString().Trim() & "|" &
-                                                reader("LocalNumber").ToString().Trim()
-                            existingKeys.Add(key)
-                        End While
-                    End Using
-                End Using
-            End Using
-
-            ' Mark duplicates in preview table
-            Dim dupCount As Integer = 0
-            For Each row As DataRow In previewDt.Rows
-                Dim key As String = row("AreaCode").ToString().Trim() & "|" &
-                                    row("LocalNumber").ToString().Trim()
-                If existingKeys.Contains(key) Then
-                    row("Estado") = "⚠ Ya existe"
-                    dupCount += 1
-                End If
-            Next
-
-            ' Show in DtGV2
-            DtGV2.DataSource = previewDt
-
-            ' Color duplicate rows yellow/orange
-            AddHandler DtGV2.CellFormatting, AddressOf DtGV2_CellFormatting
-
-            BtnInsert.Enabled = True
-
-            Dim summary As String = $"Preview listo: {previewDt.Rows.Count} filas totales." & vbCrLf &
-                                    $"   ✔ Nuevas a insertar: {previewDt.Rows.Count - dupCount}" & vbCrLf &
-                                    $"   ⚠ Ya existen en BD (no se insertarán): {dupCount}"
-            If skipped > 0 Then summary &= $"{vbCrLf}   ⛔ Saltadas (sin AreaCode/LocalNumber): {skipped}"
-            MessageBox.Show(summary, "Preview", MessageBoxButtons.OK, MessageBoxIcon.Information)
-
-        Catch ex As Exception
-            MessageBox.Show("Error checking duplicates: " & ex.Message)
-            ' Still show the data even if DB check fails
-            DtGV2.DataSource = previewDt
-            BtnInsert.Enabled = True
-        Finally
-            Cursor = Cursors.Default
-        End Try
+        ' Method not used directly based on original code, UpdatePreviewData is called instead
     End Sub
 
     Private Sub UpdatePreviewData()
         If DtGV1.DataSource Is Nothing Then
-            MessageBox.Show("Please upload an  file first.")
+            MessageBox.Show("Please upload a file first.")
             Return
         End If
 
@@ -265,7 +135,7 @@ Public Class FormTxt
 
         For Each col As String In {"PhoneNumber", "AddedDate", "Status"}
             If Not HasColumn(dtExcel, col) Then
-                MessageBox.Show($"Required column '{col}' not found in the Excel file." & vbCrLf &
+                MessageBox.Show($"Required column '{col}' not found in the file." & vbCrLf &
                                 "Make sure the header names match exactly.")
                 Return
             End If
@@ -288,11 +158,8 @@ Public Class FormTxt
         previewDt.Columns.Add("PhoneNumber", GetType(String))
         previewDt.Columns.Add("Status", GetType(String))
 
-
-
         For Each row As DataRow In dtExcel.Rows
             Dim PhoneNumber As String = GetStr(row, "PhoneNumber")
-
 
             If String.IsNullOrWhiteSpace(PhoneNumber) Then
                 skipped += 1
@@ -335,13 +202,13 @@ Public Class FormTxt
             If validStatus <> "D" AndAlso validStatus <> "A" Then validStatus = "A"
             newRow("Status") = validStatus
 
-
             previewDt.Rows.Add(newRow)
         Next
 
         If previewDt.Rows.Count = 0 Then
-            MessageBox.Show("No valid rows to preview (AreaCode and LocalNumber are required in every row).")
+            MessageBox.Show("No valid rows to preview (PhoneNumber is required in every row).")
             BtnInsert.Enabled = False
+            UpdateStatus("⚠️ No valid rows")
             Return
         End If
 
@@ -351,7 +218,6 @@ Public Class FormTxt
             Dim existingKeys As New Dictionary(Of String, Boolean)(StringComparer.OrdinalIgnoreCase)
             Dim stateMap As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
             Dim statusMap As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
-
 
             Dim builder As New System.Data.SqlClient.SqlConnectionStringBuilder()
             builder.DataSource = "172.190.120.3"
@@ -408,7 +274,7 @@ Public Class FormTxt
                             Else
                                 If Not IsDBNull(reader("NewState")) Then
                                     stateMap(key) = reader("NewState").ToString().Trim()
-                                End If
+                                end If
                             End If
                         End While
                     End Using
@@ -456,19 +322,22 @@ Public Class FormTxt
                                     $"   ☑ Existentes sin cambios (se omiten): {skipCount}"
             If skipped > 0 Then summary &= $"{vbCrLf}   ⛔ Saltadas (sin AreaCode/LocalNumber): {skipped}"
             MessageBox.Show(summary, "Preview", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            
+            UpdateStatus($"✅ Preview ready: {previewDt.Rows.Count - dupCount} new, {updateCount} to update")
 
         Catch ex As Exception
             MessageBox.Show("Error checking duplicates: " & ex.Message)
             ' Still show the data even if DB check fails
             DtGV2.DataSource = previewDt
             BtnInsert.Enabled = True
+            UpdateStatus("⚠️ Preview generated with errors")
         Finally
             Cursor = Cursors.Default
         End Try
     End Sub
 
     ' ─────────────────────────────────────────────────────────────────────────
-    ' DtGV2 cell formatting – highlight duplicate rows in amber
+    ' DtGV2 cell formatting – highlight rows by status
     ' ─────────────────────────────────────────────────────────────────────────
     Private Sub DtGV2_CellFormatting(sender As Object, e As DataGridViewCellFormattingEventArgs)
         If e.RowIndex < 0 Then Return
@@ -476,10 +345,16 @@ Public Class FormTxt
         If grid.Rows(e.RowIndex).DataBoundItem Is Nothing Then Return
 
         Dim rowView As DataRowView = CType(grid.Rows(e.RowIndex).DataBoundItem, DataRowView)
-        If rowView("Estado").ToString() = "⚠ Ya existe" Then
-            e.CellStyle.BackColor = System.Drawing.Color.FromArgb(255, 230, 153)   ' amber
-            e.CellStyle.ForeColor = System.Drawing.Color.FromArgb(120, 80, 0)
-            e.CellStyle.Font = New System.Drawing.Font(grid.Font, System.Drawing.FontStyle.Italic)
+        Dim status As String = rowView("Estado").ToString()
+
+        If status.Contains("Sin cambios") Then
+            e.CellStyle.BackColor = Color.FromArgb(22, 35, 65)
+            e.CellStyle.ForeColor = Color.DimGray
+        ElseIf status.Contains("A actualizar") Then
+            e.CellStyle.BackColor = Color.FromArgb(50, 40, 20)
+            e.CellStyle.ForeColor = Color.FromArgb(255, 200, 80)
+        ElseIf status.Contains("Nuevo") Then
+            e.CellStyle.ForeColor = Color.FromArgb(100, 255, 100)
         End If
     End Sub
 
@@ -559,6 +434,7 @@ Public Class FormTxt
         builder.TrustServerCertificate = True
 
         Cursor = Cursors.WaitCursor
+        UpdateStatus("💾 Updating database...")
         Try
             Using conn As New System.Data.SqlClient.SqlConnection(builder.ConnectionString)
                 conn.Open()
@@ -623,8 +499,8 @@ Public Class FormTxt
                     cmdLog.Parameters.AddWithValue("@ExportDate", DateTime.Now)
                     cmdLog.Parameters.AddWithValue("@ExportedByUser", Environment.UserName)
                     cmdLog.Parameters.AddWithValue("@SourceFileName",
-                        If(String.IsNullOrWhiteSpace(Label1.Text) OrElse Label1.Text = "No file selected",
-                           CObj(DBNull.Value), CObj(Label1.Text)))
+                        If(String.IsNullOrWhiteSpace(LblFilePath.Text) OrElse LblFilePath.Text = "No file selected",
+                           CObj(DBNull.Value), CObj(LblFilePath.Text)))
                     cmdLog.Parameters.AddWithValue("@RecordsExported", previewDt.Rows.Count)
                     cmdLog.Parameters.AddWithValue("@RecordsInserted", bulkDt.Rows.Count)
                     cmdLog.Parameters.AddWithValue("@RecordsUpdated", updateDt.Rows.Count)
@@ -648,8 +524,10 @@ Public Class FormTxt
                 "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
             BtnInsert.Enabled = False
+            UpdateStatus($"✅ Successfully processed {bulkDt.Rows.Count + updateDt.Rows.Count} rows in DB")
 
         Catch ex As Exception
+            UpdateStatus("❌ Database update failed")
             MessageBox.Show("Error processing data: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         Finally
             Cursor = Cursors.Default
