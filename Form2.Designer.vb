@@ -19,6 +19,7 @@ Partial Class Form2
 
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Dim DataGridViewCellStyle1 As DataGridViewCellStyle = New DataGridViewCellStyle()
         PanelHeader = New Panel()
         LblTitle = New Label()
         PanelToolbar = New Panel()
@@ -34,9 +35,9 @@ Partial Class Form2
         CType(DtGV1, ComponentModel.ISupportInitialize).BeginInit()
         PanelFooter.SuspendLayout()
         SuspendLayout()
-        '
+        ' 
         ' PanelHeader
-        '
+        ' 
         PanelHeader.BackColor = Color.FromArgb(CByte(18), CByte(30), CByte(58))
         PanelHeader.Controls.Add(LblTitle)
         PanelHeader.Dock = DockStyle.Top
@@ -45,20 +46,20 @@ Partial Class Form2
         PanelHeader.Padding = New Padding(20, 12, 20, 8)
         PanelHeader.Size = New Size(1000, 60)
         PanelHeader.TabIndex = 0
-        '
+        ' 
         ' LblTitle
-        '
+        ' 
         LblTitle.AutoSize = True
         LblTitle.Font = New Font("Segoe UI", 16F, FontStyle.Bold)
         LblTitle.ForeColor = Color.FromArgb(CByte(255), CByte(255), CByte(192))
         LblTitle.Location = New Point(20, 14)
         LblTitle.Name = "LblTitle"
-        LblTitle.Size = New Size(320, 30)
+        LblTitle.Size = New Size(316, 30)
         LblTitle.TabIndex = 0
         LblTitle.Text = "📂  Export Excel to Database"
-        '
+        ' 
         ' PanelToolbar
-        '
+        ' 
         PanelToolbar.BackColor = Color.FromArgb(CByte(22), CByte(35), CByte(65))
         PanelToolbar.Controls.Add(btnUpload)
         PanelToolbar.Controls.Add(btnExportDB)
@@ -69,78 +70,58 @@ Partial Class Form2
         PanelToolbar.Padding = New Padding(15, 10, 15, 10)
         PanelToolbar.Size = New Size(1000, 60)
         PanelToolbar.TabIndex = 1
-        '
+        ' 
         ' btnUpload
-        '
-        btnUpload.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
+        ' 
+        btnUpload.BackColor = SystemColors.Highlight
         btnUpload.Cursor = Cursors.Hand
         btnUpload.FlatAppearance.BorderSize = 0
         btnUpload.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(29), CByte(78), CByte(187))
         btnUpload.FlatStyle = FlatStyle.Flat
         btnUpload.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
-        btnUpload.ForeColor = Color.FromArgb(CByte(224), CByte(224), CByte(224))
+        btnUpload.ForeColor = Color.White
         btnUpload.Location = New Point(15, 12)
         btnUpload.Name = "btnUpload"
         btnUpload.Size = New Size(150, 36)
         btnUpload.TabIndex = 0
         btnUpload.Text = "📂  Upload Excel"
         btnUpload.UseVisualStyleBackColor = False
-        '
+        ' 
         ' btnExportDB
-        '
-        btnExportDB.BackColor = Color.FromArgb(CByte(22), CByte(163), CByte(74))
+        ' 
+        btnExportDB.BackColor = Color.FromArgb(CByte(224), CByte(224), CByte(224))
         btnExportDB.Cursor = Cursors.Hand
         btnExportDB.FlatAppearance.BorderSize = 0
         btnExportDB.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(16), CByte(130), CByte(58))
         btnExportDB.FlatStyle = FlatStyle.Flat
         btnExportDB.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
-        btnExportDB.ForeColor = Color.FromArgb(CByte(224), CByte(224), CByte(224))
+        btnExportDB.ForeColor = Color.Black
         btnExportDB.Location = New Point(180, 12)
         btnExportDB.Name = "btnExportDB"
         btnExportDB.Size = New Size(180, 36)
         btnExportDB.TabIndex = 1
         btnExportDB.Text = "💾  Export directly to DB"
         btnExportDB.UseVisualStyleBackColor = False
-        '
+        ' 
         ' LblFilePath
-        '
+        ' 
         LblFilePath.AutoSize = True
         LblFilePath.Font = New Font("Segoe UI", 9F)
         LblFilePath.ForeColor = Color.FromArgb(CByte(160), CByte(180), CByte(220))
         LblFilePath.Location = New Point(380, 20)
         LblFilePath.Name = "LblFilePath"
-        LblFilePath.Size = New Size(100, 15)
+        LblFilePath.Size = New Size(81, 15)
         LblFilePath.TabIndex = 2
         LblFilePath.Text = "No file loaded"
-        '
+        ' 
         ' DtGV1
-        '
+        ' 
         DtGV1.AllowUserToAddRows = False
         DtGV1.AllowUserToDeleteRows = False
         DtGV1.BackgroundColor = Color.FromArgb(CByte(20), CByte(33), CByte(61))
         DtGV1.BorderStyle = BorderStyle.None
-        DtGV1.ColumnHeadersDefaultCellStyle = New DataGridViewCellStyle() With {
-            .BackColor = Color.FromArgb(18, 30, 58),
-            .ForeColor = Color.FromArgb(200, 215, 245),
-            .Font = New Font("Segoe UI", 9F, FontStyle.Bold),
-            .SelectionBackColor = Color.FromArgb(37, 99, 235),
-            .SelectionForeColor = Color.White,
-            .Alignment = DataGridViewContentAlignment.MiddleLeft
-        }
+        DtGV1.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
         DtGV1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        DtGV1.DefaultCellStyle = New DataGridViewCellStyle() With {
-            .BackColor = Color.FromArgb(26, 40, 74),
-            .ForeColor = Color.FromArgb(200, 210, 235),
-            .Font = New Font("Segoe UI", 9F),
-            .SelectionBackColor = Color.FromArgb(37, 99, 235),
-            .SelectionForeColor = Color.White
-        }
-        DtGV1.AlternatingRowsDefaultCellStyle = New DataGridViewCellStyle() With {
-            .BackColor = Color.FromArgb(22, 35, 65),
-            .ForeColor = Color.FromArgb(200, 210, 235),
-            .SelectionBackColor = Color.FromArgb(37, 99, 235),
-            .SelectionForeColor = Color.White
-        }
         DtGV1.Dock = DockStyle.Fill
         DtGV1.EnableHeadersVisualStyles = False
         DtGV1.GridColor = Color.FromArgb(CByte(40), CByte(55), CByte(90))
@@ -151,9 +132,9 @@ Partial Class Form2
         DtGV1.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing
         DtGV1.Size = New Size(1000, 394)
         DtGV1.TabIndex = 2
-        '
+        ' 
         ' PanelFooter
-        '
+        ' 
         PanelFooter.BackColor = Color.FromArgb(CByte(12), CByte(20), CByte(44))
         PanelFooter.Controls.Add(LblStatus)
         PanelFooter.Controls.Add(LblRowCount)
@@ -162,9 +143,9 @@ Partial Class Form2
         PanelFooter.Name = "PanelFooter"
         PanelFooter.Size = New Size(1000, 36)
         PanelFooter.TabIndex = 3
-        '
+        ' 
         ' LblStatus
-        '
+        ' 
         LblStatus.Font = New Font("Segoe UI", 9F)
         LblStatus.ForeColor = Color.FromArgb(CByte(120), CByte(140), CByte(180))
         LblStatus.Location = New Point(15, 0)
@@ -173,9 +154,9 @@ Partial Class Form2
         LblStatus.TabIndex = 0
         LblStatus.Text = "Ready"
         LblStatus.TextAlign = ContentAlignment.MiddleLeft
-        '
+        ' 
         ' LblRowCount
-        '
+        ' 
         LblRowCount.Font = New Font("Segoe UI", 9F)
         LblRowCount.ForeColor = Color.FromArgb(CByte(120), CByte(140), CByte(180))
         LblRowCount.Location = New Point(750, 0)
@@ -184,9 +165,9 @@ Partial Class Form2
         LblRowCount.TabIndex = 1
         LblRowCount.Text = "Rows: 0"
         LblRowCount.TextAlign = ContentAlignment.MiddleRight
-        '
+        ' 
         ' Form2
-        '
+        ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.FromArgb(CByte(26), CByte(40), CByte(74))

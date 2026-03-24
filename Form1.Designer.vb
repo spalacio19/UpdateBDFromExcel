@@ -75,13 +75,13 @@ Partial Class Form1
         ' 
         ' btnUpload
         ' 
-        btnUpload.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
+        btnUpload.BackColor = SystemColors.Highlight
         btnUpload.Cursor = Cursors.Hand
         btnUpload.FlatAppearance.BorderSize = 0
         btnUpload.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(29), CByte(78), CByte(187))
         btnUpload.FlatStyle = FlatStyle.Flat
         btnUpload.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
-        btnUpload.ForeColor = Color.FromArgb(CByte(224), CByte(224), CByte(224))
+        btnUpload.ForeColor = Color.White
         btnUpload.Location = New Point(15, 12)
         btnUpload.Name = "btnUpload"
         btnUpload.Size = New Size(150, 36)
@@ -91,13 +91,13 @@ Partial Class Form1
         ' 
         ' btnReadAzure
         ' 
-        btnReadAzure.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
+        btnReadAzure.BackColor = SystemColors.Highlight
         btnReadAzure.Cursor = Cursors.Hand
         btnReadAzure.FlatAppearance.BorderSize = 0
         btnReadAzure.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(29), CByte(78), CByte(187))
         btnReadAzure.FlatStyle = FlatStyle.Flat
         btnReadAzure.Font = New Font("Segoe UI", 10F, FontStyle.Bold)
-        btnReadAzure.ForeColor = Color.FromArgb(CByte(224), CByte(224), CByte(224))
+        btnReadAzure.ForeColor = Color.White
         btnReadAzure.Location = New Point(180, 12)
         btnReadAzure.Name = "btnReadAzure"
         btnReadAzure.Size = New Size(170, 36)
