@@ -343,7 +343,7 @@ Public Class Form1
                 bulkDt.Columns.Add("PolicyStatus", GetType(String))
                 bulkDt.Columns.Add("LoadDate", GetType(Date))
 
-                Dim snapshotDate As Date = New Date(2026, 2, 28)
+                Dim snapshotDate As Date = New Date(2026, 3, 31)
                 Dim currentLoadDate As Date = DateTime.Now
 
                 For Each row As DataRow In dt.Rows

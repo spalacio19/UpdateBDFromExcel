@@ -1,5 +1,4 @@
 Imports System.IO
-Imports System.Data.SqlClient
 
 Public Class FormTxt
 
@@ -37,17 +36,17 @@ Public Class FormTxt
         dgv.BorderStyle = BorderStyle.None
         dgv.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal
         dgv.GridColor = Color.FromArgb(40, 60, 100)
-        
+
         dgv.DefaultCellStyle.BackColor = Color.FromArgb(30, 45, 80)
         dgv.DefaultCellStyle.ForeColor = Color.White
         dgv.DefaultCellStyle.SelectionBackColor = Color.FromArgb(37, 99, 235)
         dgv.DefaultCellStyle.SelectionForeColor = Color.White
         dgv.DefaultCellStyle.Font = New Font("Segoe UI", 9)
         dgv.DefaultCellStyle.Padding = New Padding(5)
-        
+
         dgv.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(26, 40, 74)
         dgv.AlternatingRowsDefaultCellStyle.ForeColor = Color.White
-        
+
         dgv.EnableHeadersVisualStyles = False
         dgv.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None
         dgv.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(20, 30, 55)
@@ -55,7 +54,7 @@ Public Class FormTxt
         dgv.ColumnHeadersDefaultCellStyle.Font = New Font("Segoe UI Semibold", 10, FontStyle.Bold)
         dgv.ColumnHeadersDefaultCellStyle.Padding = New Padding(5)
         dgv.ColumnHeadersHeight = 35
-        
+
         dgv.RowHeadersVisible = False
         dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect
     End Sub
@@ -93,32 +92,32 @@ Public Class FormTxt
 
             Try
                 Dim dt As DataTable = Await Task.Run(Function() As DataTable
-                    Dim resultTable As New DataTable()
-                    Dim isFirstLine As Boolean = True
+                                                         Dim resultTable As New DataTable()
+                                                         Dim isFirstLine As Boolean = True
 
-                    Using sr As New IO.StreamReader(file, System.Text.Encoding.UTF8)
-                        While Not sr.EndOfStream
-                            Dim line As String = sr.ReadLine()
-                            If String.IsNullOrWhiteSpace(line) Then Continue While
+                                                         Using sr As New IO.StreamReader(file, System.Text.Encoding.UTF8)
+                                                             While Not sr.EndOfStream
+                                                                 Dim line As String = sr.ReadLine()
+                                                                 If String.IsNullOrWhiteSpace(line) Then Continue While
 
-                            Dim fields() As String = SplitCsvLine(line)
+                                                                 Dim fields() As String = SplitCsvLine(line)
 
-                            If isFirstLine Then
-                                For Each header As String In fields
-                                    resultTable.Columns.Add(header.Trim().Trim(""""c))
-                                Next
-                                isFirstLine = False
-                            Else
-                                Dim row As DataRow = resultTable.NewRow()
-                                For i As Integer = 0 To Math.Min(fields.Length, resultTable.Columns.Count) - 1
-                                    row(i) = fields(i).Trim().Trim(""""c)
-                                Next
-                                resultTable.Rows.Add(row)
-                            End If
-                        End While
-                    End Using
-                    Return resultTable
-                End Function)
+                                                                 If isFirstLine Then
+                                                                     For Each header As String In fields
+                                                                         resultTable.Columns.Add(header.Trim().Trim(""""c))
+                                                                     Next
+                                                                     isFirstLine = False
+                                                                 Else
+                                                                     Dim row As DataRow = resultTable.NewRow()
+                                                                     For i As Integer = 0 To Math.Min(fields.Length, resultTable.Columns.Count) - 1
+                                                                         row(i) = fields(i).Trim().Trim(""""c)
+                                                                     Next
+                                                                     resultTable.Rows.Add(row)
+                                                                 End If
+                                                             End While
+                                                         End Using
+                                                         Return resultTable
+                                                     End Function)
 
                 ' Use default or DisplayedCells width to match DtGV2
                 DtGV1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells
@@ -216,139 +215,139 @@ Public Class FormTxt
 
         Try
             Dim resultObj = Await Task.Run(Function()
-                For Each row As DataRow In dtExcel.Rows
-                    Dim PhoneNumber As String = GetStr(row, "PhoneNumber")
+                                               For Each row As DataRow In dtExcel.Rows
+                                                   Dim PhoneNumber As String = GetStr(row, "PhoneNumber")
 
-                    If String.IsNullOrWhiteSpace(PhoneNumber) Then
-                        skipped += 1
-                        Continue For
-                    End If
+                                                   If String.IsNullOrWhiteSpace(PhoneNumber) Then
+                                                       skipped += 1
+                                                       Continue For
+                                                   End If
 
-                    Dim newRow As DataRow = previewDt.NewRow()
-                    newRow("Estado") = "✔ Nuevo"
-                    
-                    Dim cleanPhone As String = PhoneNumber.Trim()
-                    If cleanPhone.Length >= 10 Then
-                        newRow("AreaCode") = cleanPhone.Substring(0, 3)
-                        newRow("LocalNumber") = cleanPhone.Substring(3)
-                    Else
-                        newRow("AreaCode") = cleanPhone
-                        newRow("LocalNumber") = cleanPhone
-                    End If
+                                                   Dim newRow As DataRow = previewDt.NewRow()
+                                                   newRow("Estado") = "✔ Nuevo"
 
-                    Dim stateVal As String = GetStr(row, "State")
-                    newRow("State") = If(String.IsNullOrWhiteSpace(stateVal), DBNull.Value, CObj(stateVal.Trim()))
+                                                   Dim cleanPhone As String = PhoneNumber.Trim()
+                                                   If cleanPhone.Length >= 10 Then
+                                                       newRow("AreaCode") = cleanPhone.Substring(0, 3)
+                                                       newRow("LocalNumber") = cleanPhone.Substring(3)
+                                                   Else
+                                                       newRow("AreaCode") = cleanPhone
+                                                       newRow("LocalNumber") = cleanPhone
+                                                   End If
 
-                    Dim addedDateVal As Object = GetSafeDate(row, "AddedDate")
-                    newRow("AddedDate") = If(addedDateVal Is DBNull.Value, CObj(defaultDate), addedDateVal)
+                                                   Dim stateVal As String = GetStr(row, "State")
+                                                   newRow("State") = If(String.IsNullOrWhiteSpace(stateVal), DBNull.Value, CObj(stateVal.Trim()))
 
-                    Dim addedBy As String = GetStr(row, "AddedByUser")
-                    newRow("AddedByUser") = If(String.IsNullOrWhiteSpace(addedBy), defaultUser, addedBy.Trim())
+                                                   Dim addedDateVal As Object = GetSafeDate(row, "AddedDate")
+                                                   newRow("AddedDate") = If(addedDateVal Is DBNull.Value, CObj(defaultDate), addedDateVal)
 
-                    Dim sourceVal As String = GetStr(row, "Source")
-                    newRow("Source") = If(String.IsNullOrWhiteSpace(sourceVal), DBNull.Value, CObj(sourceVal.Trim()))
+                                                   Dim addedBy As String = GetStr(row, "AddedByUser")
+                                                   newRow("AddedByUser") = If(String.IsNullOrWhiteSpace(addedBy), defaultUser, addedBy.Trim())
 
-                    Dim notesVal As String = GetStr(row, "Notes")
-                    newRow("Notes") = If(String.IsNullOrWhiteSpace(notesVal), DBNull.Value, CObj(notesVal.Trim()))
+                                                   Dim sourceVal As String = GetStr(row, "Source")
+                                                   newRow("Source") = If(String.IsNullOrWhiteSpace(sourceVal), DBNull.Value, CObj(sourceVal.Trim()))
 
-                    Dim phoneNumberVal As String = GetStr(row, "PhoneNumber")
-                    newRow("PhoneNumber") = If(String.IsNullOrWhiteSpace(phoneNumberVal), DBNull.Value, CObj(phoneNumberVal.Trim()))
+                                                   Dim notesVal As String = GetStr(row, "Notes")
+                                                   newRow("Notes") = If(String.IsNullOrWhiteSpace(notesVal), DBNull.Value, CObj(notesVal.Trim()))
 
-                    Dim statusVal As String = GetStr(row, "Status")
-                    Dim validStatus As String = If(String.IsNullOrWhiteSpace(statusVal), "A", statusVal.Trim().ToUpper())
-                    If validStatus <> "D" AndAlso validStatus <> "A" Then validStatus = "A"
-                    newRow("Status") = validStatus
+                                                   Dim phoneNumberVal As String = GetStr(row, "PhoneNumber")
+                                                   newRow("PhoneNumber") = If(String.IsNullOrWhiteSpace(phoneNumberVal), DBNull.Value, CObj(phoneNumberVal.Trim()))
 
-                    previewDt.Rows.Add(newRow)
-                Next
+                                                   Dim statusVal As String = GetStr(row, "Status")
+                                                   Dim validStatus As String = If(String.IsNullOrWhiteSpace(statusVal), "A", statusVal.Trim().ToUpper())
+                                                   If validStatus <> "D" AndAlso validStatus <> "A" Then validStatus = "A"
+                                                   newRow("Status") = validStatus
 
-                If previewDt.Rows.Count = 0 Then
-                    Return New With {.success = False, .msg = "No valid rows to preview."}
-                End If
+                                                   previewDt.Rows.Add(newRow)
+                                               Next
 
-                Dim existingKeys As New Dictionary(Of String, Boolean)(StringComparer.OrdinalIgnoreCase)
-                Dim stateMap As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
-                Dim statusMap As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+                                               If previewDt.Rows.Count = 0 Then
+                                                   Return New With {.success = False, .msg = "No valid rows to preview."}
+                                               End If
 
-                Dim builder As New SqlConnectionStringBuilder()
-                builder.DataSource = "172.190.120.3"
-                builder.InitialCatalog = "DNC"
-                builder.UserID = "sa"
-                builder.Password = "Dell2014#"
-                builder.TrustServerCertificate = True
+                                               Dim existingKeys As New Dictionary(Of String, Boolean)(StringComparer.OrdinalIgnoreCase)
+                                               Dim stateMap As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+                                               Dim statusMap As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
 
-                Dim keysDt As New DataTable()
-                keysDt.Columns.Add("PhoneNumber", GetType(String))
-                For Each row As DataRow In previewDt.Rows
-                    keysDt.Rows.Add(row("PhoneNumber").ToString().Trim())
-                Next
+                                               Dim builder As New SqlConnectionStringBuilder()
+                                               builder.DataSource = "172.190.120.3"
+                                               builder.InitialCatalog = "DNC"
+                                               builder.UserID = "sa"
+                                               builder.Password = "Dell2014#"
+                                               builder.TrustServerCertificate = True
 
-                Using conn As New SqlConnection(builder.ConnectionString)
-                    conn.Open()
+                                               Dim keysDt As New DataTable()
+                                               keysDt.Columns.Add("PhoneNumber", GetType(String))
+                                               For Each row As DataRow In previewDt.Rows
+                                                   keysDt.Rows.Add(row("PhoneNumber").ToString().Trim())
+                                               Next
 
-                    Dim createTmp As String = "CREATE TABLE #tmpCheck (PhoneNumber VARCHAR(20));"
-                    Using cmd As New SqlCommand(createTmp, conn)
-                        cmd.ExecuteNonQuery()
-                    End Using
+                                               Using conn As New SqlConnection(builder.ConnectionString)
+                                                   conn.Open()
 
-                    Using bc As New System.Data.SqlClient.SqlBulkCopy(conn)
-                        bc.DestinationTableName = "#tmpCheck"
-                        bc.ColumnMappings.Add("PhoneNumber", "PhoneNumber")
-                        bc.BulkCopyTimeout = 120
-                        bc.WriteToServer(keysDt)
-                    End Using
+                                                   Dim createTmp As String = "CREATE TABLE #tmpCheck (PhoneNumber VARCHAR(20));"
+                                                   Using cmd As New SqlCommand(createTmp, conn)
+                                                       cmd.ExecuteNonQuery()
+                                                   End Using
 
-                    Dim checkSql As String =
-                        "SELECT t.PhoneNumber, d.State AS DbState, d.Status AS DbStatus, s.StateCode AS NewState " &
-                        "FROM #tmpCheck t " &
-                        "LEFT JOIN DNC.dbo.DoNotCallNumbers d WITH (NOLOCK) ON d.PhoneNumber = t.PhoneNumber " &
-                        "LEFT JOIN DNC.dbo.AreaCodeByState s WITH (NOLOCK) ON s.AreaCode = LEFT(t.PhoneNumber, 3);"
+                                                   Using bc As New System.Data.SqlClient.SqlBulkCopy(conn)
+                                                       bc.DestinationTableName = "#tmpCheck"
+                                                       bc.ColumnMappings.Add("PhoneNumber", "PhoneNumber")
+                                                       bc.BulkCopyTimeout = 120
+                                                       bc.WriteToServer(keysDt)
+                                                   End Using
 
-                    Using cmd As New SqlCommand(checkSql, conn)
-                        cmd.CommandTimeout = 300
-                        Using reader = cmd.ExecuteReader()
-                            While reader.Read()
-                                Dim key As String = reader("PhoneNumber").ToString().Trim()
-                                Dim isDup As Boolean = Not IsDBNull(reader("DbState"))
-                                
-                                If isDup Then
-                                    existingKeys(key) = True
-                                    stateMap(key) = reader("DbState").ToString().Trim()
-                                    statusMap(key) = If(IsDBNull(reader("DbStatus")), "", reader("DbStatus").ToString().Trim().ToUpper())
-                                Else
-                                    If Not IsDBNull(reader("NewState")) Then
-                                        stateMap(key) = reader("NewState").ToString().Trim()
-                                    End If
-                                End If
-                            End While
-                        End Using
-                    End Using
-                End Using
+                                                   Dim checkSql As String =
+                                                       "SELECT t.PhoneNumber, d.State AS DbState, d.Status AS DbStatus, s.StateCode AS NewState " &
+                                                       "FROM #tmpCheck t " &
+                                                       "LEFT JOIN DNC.dbo.DoNotCallNumbers d WITH (NOLOCK) ON d.PhoneNumber = t.PhoneNumber " &
+                                                       "LEFT JOIN DNC.dbo.AreaCodeByState s WITH (NOLOCK) ON s.AreaCode = LEFT(t.PhoneNumber, 3);"
 
-                For Each row As DataRow In previewDt.Rows
-                    Dim key As String = row("PhoneNumber").ToString().Trim()
-                    
-                    If stateMap.ContainsKey(key) AndAlso Not String.IsNullOrWhiteSpace(stateMap(key)) Then
-                        row("State") = stateMap(key)
-                    End If
+                                                   Using cmd As New SqlCommand(checkSql, conn)
+                                                       cmd.CommandTimeout = 300
+                                                       Using reader = cmd.ExecuteReader()
+                                                           While reader.Read()
+                                                               Dim key As String = reader("PhoneNumber").ToString().Trim()
+                                                               Dim isDup As Boolean = Not IsDBNull(reader("DbState"))
 
-                    If existingKeys.ContainsKey(key) Then
-                        dupCount += 1
-                        Dim dbStatus As String = If(statusMap.ContainsKey(key), statusMap(key), "")
-                        Dim newStatus As String = row("Status").ToString().Trim().ToUpper()
+                                                               If isDup Then
+                                                                   existingKeys(key) = True
+                                                                   stateMap(key) = reader("DbState").ToString().Trim()
+                                                                   statusMap(key) = If(IsDBNull(reader("DbStatus")), "", reader("DbStatus").ToString().Trim().ToUpper())
+                                                               Else
+                                                                   If Not IsDBNull(reader("NewState")) Then
+                                                                       stateMap(key) = reader("NewState").ToString().Trim()
+                                                                   End If
+                                                               End If
+                                                           End While
+                                                       End Using
+                                                   End Using
+                                               End Using
 
-                        If dbStatus <> newStatus AndAlso (dbStatus = "A" OrElse dbStatus = "D") AndAlso (newStatus = "A" OrElse newStatus = "D") Then
-                            row("Estado") = "🔄 A actualizar Status"
-                            updateCount += 1
-                        Else
-                            row("Estado") = "☑ Sin cambios"
-                            skipCount += 1
-                        End If
-                    End If
-                Next
+                                               For Each row As DataRow In previewDt.Rows
+                                                   Dim key As String = row("PhoneNumber").ToString().Trim()
 
-                Return New With {.success = True, .msg = ""}
-            End Function)
+                                                   If stateMap.ContainsKey(key) AndAlso Not String.IsNullOrWhiteSpace(stateMap(key)) Then
+                                                       row("State") = stateMap(key)
+                                                   End If
+
+                                                   If existingKeys.ContainsKey(key) Then
+                                                       dupCount += 1
+                                                       Dim dbStatus As String = If(statusMap.ContainsKey(key), statusMap(key), "")
+                                                       Dim newStatus As String = row("Status").ToString().Trim().ToUpper()
+
+                                                       If dbStatus <> newStatus AndAlso (dbStatus = "A" OrElse dbStatus = "D") AndAlso (newStatus = "A" OrElse newStatus = "D") Then
+                                                           row("Estado") = "🔄 A actualizar Status"
+                                                           updateCount += 1
+                                                       Else
+                                                           row("Estado") = "☑ Sin cambios"
+                                                           skipCount += 1
+                                                       End If
+                                                   End If
+                                               Next
+
+                                               Return New With {.success = True, .msg = ""}
+                                           End Function)
 
             If Not resultObj.success Then
                 MessageBox.Show(resultObj.msg)
@@ -367,7 +366,7 @@ Public Class FormTxt
                                     $"   ☑ Existentes sin cambios (se omiten): {skipCount}"
             If skipped > 0 Then summary &= $"{vbCrLf}   ⛔ Saltadas (sin AreaCode/LocalNumber): {skipped}"
             MessageBox.Show(summary, "Preview", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            
+
             UpdateStatus($"✅ Preview ready: {previewDt.Rows.Count - dupCount} new, {updateCount} to update")
 
         Catch ex As Exception
@@ -434,119 +433,119 @@ Public Class FormTxt
             Dim usrName As String = Environment.UserName
 
             Dim result = Await Task.Run(Function() As Tuple(Of Integer, Integer)
-                Dim bulkDt As New DataTable()
-                bulkDt.Columns.Add("AreaCode", GetType(String))
-                bulkDt.Columns.Add("LocalNumber", GetType(String))
-                bulkDt.Columns.Add("State", GetType(String))
-                bulkDt.Columns.Add("AddedDate", GetType(DateTime))
-                bulkDt.Columns.Add("AddedByUser", GetType(String))
-                bulkDt.Columns.Add("Source", GetType(String))
-                bulkDt.Columns.Add("Notes", GetType(String))
-                bulkDt.Columns.Add("PhoneNumber", GetType(String))
-                bulkDt.Columns.Add("Status", GetType(String))
+                                            Dim bulkDt As New DataTable()
+                                            bulkDt.Columns.Add("AreaCode", GetType(String))
+                                            bulkDt.Columns.Add("LocalNumber", GetType(String))
+                                            bulkDt.Columns.Add("State", GetType(String))
+                                            bulkDt.Columns.Add("AddedDate", GetType(DateTime))
+                                            bulkDt.Columns.Add("AddedByUser", GetType(String))
+                                            bulkDt.Columns.Add("Source", GetType(String))
+                                            bulkDt.Columns.Add("Notes", GetType(String))
+                                            bulkDt.Columns.Add("PhoneNumber", GetType(String))
+                                            bulkDt.Columns.Add("Status", GetType(String))
 
-                For Each row As DataRow In newRows
-                    Dim nr As DataRow = bulkDt.NewRow()
-                    nr("AreaCode") = row("AreaCode")
-                    nr("LocalNumber") = row("LocalNumber")
-                    nr("State") = row("State")
-                    nr("AddedDate") = row("AddedDate")
-                    nr("AddedByUser") = row("AddedByUser")
-                    nr("Source") = "National Do Not Call Registry"
-                    nr("Notes") = row("Notes")
-                    nr("PhoneNumber") = row("PhoneNumber")
-                    nr("Status") = row("Status")
-                    bulkDt.Rows.Add(nr)
-                Next
+                                            For Each row As DataRow In newRows
+                                                Dim nr As DataRow = bulkDt.NewRow()
+                                                nr("AreaCode") = row("AreaCode")
+                                                nr("LocalNumber") = row("LocalNumber")
+                                                nr("State") = row("State")
+                                                nr("AddedDate") = row("AddedDate")
+                                                nr("AddedByUser") = row("AddedByUser")
+                                                nr("Source") = "National Do Not Call Registry"
+                                                nr("Notes") = row("Notes")
+                                                nr("PhoneNumber") = row("PhoneNumber")
+                                                nr("Status") = row("Status")
+                                                bulkDt.Rows.Add(nr)
+                                            Next
 
-                Dim updateDt As New DataTable()
-                updateDt.Columns.Add("PhoneNumber", GetType(String))
-                updateDt.Columns.Add("Status", GetType(String))
-                updateDt.Columns.Add("AddedDate", GetType(DateTime))
+                                            Dim updateDt As New DataTable()
+                                            updateDt.Columns.Add("PhoneNumber", GetType(String))
+                                            updateDt.Columns.Add("Status", GetType(String))
+                                            updateDt.Columns.Add("AddedDate", GetType(DateTime))
 
-                For Each row As DataRow In updateRows
-                    Dim nr As DataRow = updateDt.NewRow()
-                    nr("PhoneNumber") = row("PhoneNumber")
-                    nr("Status") = row("Status")
-                    nr("AddedDate") = row("AddedDate")
-                    updateDt.Rows.Add(nr)
-                Next
+                                            For Each row As DataRow In updateRows
+                                                Dim nr As DataRow = updateDt.NewRow()
+                                                nr("PhoneNumber") = row("PhoneNumber")
+                                                nr("Status") = row("Status")
+                                                nr("AddedDate") = row("AddedDate")
+                                                updateDt.Rows.Add(nr)
+                                            Next
 
-                Dim builder As New SqlConnectionStringBuilder()
-                builder.DataSource = "172.190.120.3"
-                builder.InitialCatalog = "DNC"
-                builder.UserID = "sa"
-                builder.Password = "Dell2014#"
-                builder.TrustServerCertificate = True
+                                            Dim builder As New SqlConnectionStringBuilder()
+                                            builder.DataSource = "172.190.120.3"
+                                            builder.InitialCatalog = "DNC"
+                                            builder.UserID = "sa"
+                                            builder.Password = "Dell2014#"
+                                            builder.TrustServerCertificate = True
 
-                Using conn As New SqlConnection(builder.ConnectionString)
-                    conn.Open()
+                                            Using conn As New SqlConnection(builder.ConnectionString)
+                                                conn.Open()
 
-                    If bulkDt.Rows.Count > 0 Then
-                        Using bulkCopy As New System.Data.SqlClient.SqlBulkCopy(conn)
-                            bulkCopy.DestinationTableName = "DNC.dbo.DoNotCallNumbers"
-                            bulkCopy.BatchSize = 5000
-                            bulkCopy.BulkCopyTimeout = 600
-                            bulkCopy.ColumnMappings.Add("AreaCode", "AreaCode")
-                            bulkCopy.ColumnMappings.Add("LocalNumber", "LocalNumber")
-                            bulkCopy.ColumnMappings.Add("State", "State")
-                            bulkCopy.ColumnMappings.Add("AddedDate", "AddedDate")
-                            bulkCopy.ColumnMappings.Add("AddedByUser", "AddedByUser")
-                            bulkCopy.ColumnMappings.Add("Source", "Source")
-                            bulkCopy.ColumnMappings.Add("Notes", "Notes")
-                            bulkCopy.ColumnMappings.Add("PhoneNumber", "PhoneNumber")
-                            bulkCopy.ColumnMappings.Add("Status", "Status")
-                            bulkCopy.WriteToServer(bulkDt)
-                        End Using
-                    End If
+                                                If bulkDt.Rows.Count > 0 Then
+                                                    Using bulkCopy As New System.Data.SqlClient.SqlBulkCopy(conn)
+                                                        bulkCopy.DestinationTableName = "DNC.dbo.DoNotCallNumbers"
+                                                        bulkCopy.BatchSize = 5000
+                                                        bulkCopy.BulkCopyTimeout = 600
+                                                        bulkCopy.ColumnMappings.Add("AreaCode", "AreaCode")
+                                                        bulkCopy.ColumnMappings.Add("LocalNumber", "LocalNumber")
+                                                        bulkCopy.ColumnMappings.Add("State", "State")
+                                                        bulkCopy.ColumnMappings.Add("AddedDate", "AddedDate")
+                                                        bulkCopy.ColumnMappings.Add("AddedByUser", "AddedByUser")
+                                                        bulkCopy.ColumnMappings.Add("Source", "Source")
+                                                        bulkCopy.ColumnMappings.Add("Notes", "Notes")
+                                                        bulkCopy.ColumnMappings.Add("PhoneNumber", "PhoneNumber")
+                                                        bulkCopy.ColumnMappings.Add("Status", "Status")
+                                                        bulkCopy.WriteToServer(bulkDt)
+                                                    End Using
+                                                End If
 
-                    If updateDt.Rows.Count > 0 Then
-                        Dim createTmp As String = "CREATE TABLE #tmpUpdateStatus (PhoneNumber VARCHAR(20), Status CHAR(1), AddedDate DATETIME);"
-                        Using cmd As New SqlCommand(createTmp, conn)
-                            cmd.ExecuteNonQuery()
-                        End Using
+                                                If updateDt.Rows.Count > 0 Then
+                                                    Dim createTmp As String = "CREATE TABLE #tmpUpdateStatus (PhoneNumber VARCHAR(20), Status CHAR(1), AddedDate DATETIME);"
+                                                    Using cmd As New SqlCommand(createTmp, conn)
+                                                        cmd.ExecuteNonQuery()
+                                                    End Using
 
-                        Using bc As New SqlBulkCopy(conn)
-                            bc.DestinationTableName = "#tmpUpdateStatus"
-                            bc.ColumnMappings.Add("PhoneNumber", "PhoneNumber")
-                            bc.ColumnMappings.Add("Status", "Status")
-                            bc.ColumnMappings.Add("AddedDate", "AddedDate")
-                            bc.BulkCopyTimeout = 120
-                            bc.WriteToServer(updateDt)
-                        End Using
+                                                    Using bc As New SqlBulkCopy(conn)
+                                                        bc.DestinationTableName = "#tmpUpdateStatus"
+                                                        bc.ColumnMappings.Add("PhoneNumber", "PhoneNumber")
+                                                        bc.ColumnMappings.Add("Status", "Status")
+                                                        bc.ColumnMappings.Add("AddedDate", "AddedDate")
+                                                        bc.BulkCopyTimeout = 120
+                                                        bc.WriteToServer(updateDt)
+                                                    End Using
 
-                        Dim updateSql As String =
-                            "UPDATE d " &
-                            "SET d.Status = t.Status, d.AddedDate = t.AddedDate " &
-                            "FROM DNC.dbo.DoNotCallNumbers d " &
-                            "INNER JOIN #tmpUpdateStatus t ON d.PhoneNumber = t.PhoneNumber " &
-                            "WHERE d.Status <> t.Status;"
+                                                    Dim updateSql As String =
+                                                        "UPDATE d " &
+                                                        "SET d.Status = t.Status, d.AddedDate = t.AddedDate " &
+                                                        "FROM DNC.dbo.DoNotCallNumbers d " &
+                                                        "INNER JOIN #tmpUpdateStatus t ON d.PhoneNumber = t.PhoneNumber " &
+                                                        "WHERE d.Status <> t.Status;"
 
-                        Using cmd As New SqlCommand(updateSql, conn)
-                            cmd.CommandTimeout = 300
-                            cmd.ExecuteNonQuery()
-                        End Using
-                    End If
+                                                    Using cmd As New SqlCommand(updateSql, conn)
+                                                        cmd.CommandTimeout = 300
+                                                        cmd.ExecuteNonQuery()
+                                                    End Using
+                                                End If
 
-                    Dim logSql As String =
-                        "INSERT INTO DNC.dbo.DoNotCallExportLog " &
-                        "(ExportDate, ExportedByUser, SourceFileName, RecordsExported, RecordsInserted, RecordsUpdated) " &
-                        "VALUES (@ExportDate, @ExportedByUser, @SourceFileName, @RecordsExported, @RecordsInserted, @RecordsUpdated);"
+                                                Dim logSql As String =
+                                                    "INSERT INTO DNC.dbo.DoNotCallExportLog " &
+                                                    "(ExportDate, ExportedByUser, SourceFileName, RecordsExported, RecordsInserted, RecordsUpdated) " &
+                                                    "VALUES (@ExportDate, @ExportedByUser, @SourceFileName, @RecordsExported, @RecordsInserted, @RecordsUpdated);"
 
-                    Using cmdLog As New SqlCommand(logSql, conn)
-                        cmdLog.Parameters.AddWithValue("@ExportDate", DateTime.Now)
-                        cmdLog.Parameters.AddWithValue("@ExportedByUser", usrName)
-                        cmdLog.Parameters.AddWithValue("@SourceFileName",
-                            If(String.IsNullOrWhiteSpace(lblPath), CObj(DBNull.Value), CObj(lblPath)))
-                        cmdLog.Parameters.AddWithValue("@RecordsExported", previewDt.Rows.Count)
-                        cmdLog.Parameters.AddWithValue("@RecordsInserted", bulkDt.Rows.Count)
-                        cmdLog.Parameters.AddWithValue("@RecordsUpdated", updateDt.Rows.Count)
-                        cmdLog.ExecuteNonQuery()
-                    End Using
-                End Using
+                                                Using cmdLog As New SqlCommand(logSql, conn)
+                                                    cmdLog.Parameters.AddWithValue("@ExportDate", DateTime.Now)
+                                                    cmdLog.Parameters.AddWithValue("@ExportedByUser", usrName)
+                                                    cmdLog.Parameters.AddWithValue("@SourceFileName",
+                                                        If(String.IsNullOrWhiteSpace(lblPath), CObj(DBNull.Value), CObj(lblPath)))
+                                                    cmdLog.Parameters.AddWithValue("@RecordsExported", previewDt.Rows.Count)
+                                                    cmdLog.Parameters.AddWithValue("@RecordsInserted", bulkDt.Rows.Count)
+                                                    cmdLog.Parameters.AddWithValue("@RecordsUpdated", updateDt.Rows.Count)
+                                                    cmdLog.ExecuteNonQuery()
+                                                End Using
+                                            End Using
 
-                Return New Tuple(Of Integer, Integer)(bulkDt.Rows.Count, updateDt.Rows.Count)
-            End Function)
+                                            Return New Tuple(Of Integer, Integer)(bulkDt.Rows.Count, updateDt.Rows.Count)
+                                        End Function)
 
             For Each row As DataRow In newRows
                 row("Estado") = "✅ Insertado"

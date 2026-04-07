@@ -26,6 +26,8 @@ Partial Class FormMain
         LblTxtDesc = New Label()
         btnPolicySnapshot = New FontAwesome.Sharp.IconButton()
         LblPolicyDesc = New Label()
+        btnFrancoNet = New FontAwesome.Sharp.IconButton()
+        LblFrancoNetDesc = New Label()
         PanelFooter = New Panel()
         LblFooter = New Label()
         PanelHeader.SuspendLayout()
@@ -48,8 +50,8 @@ Partial Class FormMain
         ' 
         LblTitle.AutoSize = True
         LblTitle.Font = New Font("Segoe UI", 18F, FontStyle.Bold)
-        LblTitle.ForeColor = Color.FromArgb(CByte(255), CByte(255), CByte(192))
-        LblTitle.Location = New Point(83, 15)
+        LblTitle.ForeColor = Color.FromArgb(CByte(192), CByte(255), CByte(255))
+        LblTitle.Location = New Point(83, 22)
         LblTitle.Name = "LblTitle"
         LblTitle.Size = New Size(328, 32)
         LblTitle.TabIndex = 0
@@ -64,11 +66,13 @@ Partial Class FormMain
         PanelContent.Controls.Add(LblTxtDesc)
         PanelContent.Controls.Add(btnPolicySnapshot)
         PanelContent.Controls.Add(LblPolicyDesc)
+        PanelContent.Controls.Add(btnFrancoNet)
+        PanelContent.Controls.Add(LblFrancoNetDesc)
         PanelContent.Dock = DockStyle.Fill
         PanelContent.Location = New Point(0, 90)
         PanelContent.Name = "PanelContent"
         PanelContent.Padding = New Padding(30, 25, 30, 10)
-        PanelContent.Size = New Size(500, 344)
+        PanelContent.Size = New Size(500, 454)
         PanelContent.TabIndex = 0
         ' 
         ' btnExportExcel
@@ -176,12 +180,47 @@ Partial Class FormMain
         LblPolicyDesc.TabIndex = 4
         LblPolicyDesc.Text = "Inserta datos de polizas vigentes en ReportDB.dbo.PolicyInForceSnapshot"
         ' 
+        ' btnFrancoNet
+        ' 
+        btnFrancoNet.BackColor = Color.Teal
+        btnFrancoNet.Cursor = Cursors.Hand
+        btnFrancoNet.FlatAppearance.BorderSize = 0
+        btnFrancoNet.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(16), CByte(130), CByte(58))
+        btnFrancoNet.FlatStyle = FlatStyle.Flat
+        btnFrancoNet.Font = New Font("Segoe UI", 13F, FontStyle.Bold)
+        btnFrancoNet.ForeColor = Color.White
+        btnFrancoNet.IconChar = FontAwesome.Sharp.IconChar.NetworkWired
+        btnFrancoNet.IconColor = Color.White
+        btnFrancoNet.IconFont = FontAwesome.Sharp.IconFont.Auto
+        btnFrancoNet.IconSize = 32
+        btnFrancoNet.ImageAlign = ContentAlignment.MiddleLeft
+        btnFrancoNet.Location = New Point(30, 325)
+        btnFrancoNet.Name = "btnFrancoNet"
+        btnFrancoNet.Padding = New Padding(15, 0, 0, 0)
+        btnFrancoNet.Size = New Size(440, 65)
+        btnFrancoNet.TabIndex = 7
+        btnFrancoNet.Text = "  Franco Net (Append Mode)"
+        btnFrancoNet.TextAlign = ContentAlignment.MiddleLeft
+        btnFrancoNet.TextImageRelation = TextImageRelation.ImageBeforeText
+        btnFrancoNet.UseVisualStyleBackColor = False
+        ' 
+        ' LblFrancoNetDesc
+        ' 
+        LblFrancoNetDesc.AutoSize = True
+        LblFrancoNetDesc.Font = New Font("Segoe UI", 8.5F)
+        LblFrancoNetDesc.ForeColor = Color.FromArgb(CByte(160), CByte(180), CByte(220))
+        LblFrancoNetDesc.Location = New Point(45, 396)
+        LblFrancoNetDesc.Name = "LblFrancoNetDesc"
+        LblFrancoNetDesc.Size = New Size(391, 15)
+        LblFrancoNetDesc.TabIndex = 8
+        LblFrancoNetDesc.Text = "Importa y acumula datos en la tabla FrancoNet_Temp (sin borrar previos)"
+        ' 
         ' PanelFooter
         ' 
         PanelFooter.BackColor = Color.FromArgb(CByte(12), CByte(20), CByte(44))
         PanelFooter.Controls.Add(LblFooter)
         PanelFooter.Dock = DockStyle.Bottom
-        PanelFooter.Location = New Point(0, 434)
+        PanelFooter.Location = New Point(0, 544)
         PanelFooter.Name = "PanelFooter"
         PanelFooter.Size = New Size(500, 36)
         PanelFooter.TabIndex = 1
@@ -203,14 +242,13 @@ Partial Class FormMain
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.FromArgb(CByte(26), CByte(40), CByte(74))
-        ClientSize = New Size(500, 470)
+        ClientSize = New Size(500, 580)
         Controls.Add(PanelContent)
         Controls.Add(PanelFooter)
         Controls.Add(PanelHeader)
         FormBorderStyle = FormBorderStyle.FixedSingle
         MaximizeBox = False
         Name = "FormMain"
-        StartPosition = StartPosition.CenterScreen
         Text = "Data Manager"
         PanelHeader.ResumeLayout(False)
         PanelHeader.PerformLayout()
@@ -230,5 +268,7 @@ Partial Class FormMain
     Friend LblFooter As Label
     Friend WithEvents btnExportExcel As FontAwesome.Sharp.IconButton
     Friend WithEvents LblExcelDesc As Label
+    Friend WithEvents btnFrancoNet As FontAwesome.Sharp.IconButton
+    Friend WithEvents LblFrancoNetDesc As Label
 
 End Class
