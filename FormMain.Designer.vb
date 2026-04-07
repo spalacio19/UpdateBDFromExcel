@@ -28,6 +28,8 @@ Partial Class FormMain
         LblPolicyDesc = New Label()
         btnFrancoNet = New FontAwesome.Sharp.IconButton()
         LblFrancoNetDesc = New Label()
+        btnDashboard = New FontAwesome.Sharp.IconButton()
+        LblDashboardDesc = New Label()
         PanelFooter = New Panel()
         LblFooter = New Label()
         PanelHeader.SuspendLayout()
@@ -68,11 +70,13 @@ Partial Class FormMain
         PanelContent.Controls.Add(LblPolicyDesc)
         PanelContent.Controls.Add(btnFrancoNet)
         PanelContent.Controls.Add(LblFrancoNetDesc)
+        PanelContent.Controls.Add(btnDashboard)
+        PanelContent.Controls.Add(LblDashboardDesc)
         PanelContent.Dock = DockStyle.Fill
         PanelContent.Location = New Point(0, 90)
         PanelContent.Name = "PanelContent"
         PanelContent.Padding = New Padding(30, 25, 30, 10)
-        PanelContent.Size = New Size(500, 454)
+        PanelContent.Size = New Size(500, 564)
         PanelContent.TabIndex = 0
         ' 
         ' btnExportExcel
@@ -215,6 +219,41 @@ Partial Class FormMain
         LblFrancoNetDesc.TabIndex = 8
         LblFrancoNetDesc.Text = "Importa y acumula datos en la tabla FrancoNet_Temp (sin borrar previos)"
         ' 
+        ' btnDashboard
+        ' 
+        btnDashboard.BackColor = Color.FromArgb(CByte(88), CByte(28), CByte(135))
+        btnDashboard.Cursor = Cursors.Hand
+        btnDashboard.FlatAppearance.BorderSize = 0
+        btnDashboard.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(107), CByte(33), CByte(168))
+        btnDashboard.FlatStyle = FlatStyle.Flat
+        btnDashboard.Font = New Font("Segoe UI", 13F, FontStyle.Bold)
+        btnDashboard.ForeColor = Color.White
+        btnDashboard.IconChar = FontAwesome.Sharp.IconChar.ChartLine
+        btnDashboard.IconColor = Color.White
+        btnDashboard.IconFont = FontAwesome.Sharp.IconFont.Auto
+        btnDashboard.IconSize = 32
+        btnDashboard.ImageAlign = ContentAlignment.MiddleLeft
+        btnDashboard.Location = New Point(30, 435)
+        btnDashboard.Name = "btnDashboard"
+        btnDashboard.Padding = New Padding(15, 0, 0, 0)
+        btnDashboard.Size = New Size(440, 65)
+        btnDashboard.TabIndex = 9
+        btnDashboard.Text = "  Dashboard  (ReportDB Views)"
+        btnDashboard.TextAlign = ContentAlignment.MiddleLeft
+        btnDashboard.TextImageRelation = TextImageRelation.ImageBeforeText
+        btnDashboard.UseVisualStyleBackColor = False
+        ' 
+        ' LblDashboardDesc
+        ' 
+        LblDashboardDesc.AutoSize = True
+        LblDashboardDesc.Font = New Font("Segoe UI", 8.5F)
+        LblDashboardDesc.ForeColor = Color.FromArgb(CByte(160), CByte(180), CByte(220))
+        LblDashboardDesc.Location = New Point(45, 506)
+        LblDashboardDesc.Name = "LblDashboardDesc"
+        LblDashboardDesc.Size = New Size(391, 15)
+        LblDashboardDesc.TabIndex = 10
+        LblDashboardDesc.Text = "Visualiza KPIs y vistas de ReportDB en tiempo real"
+        ' 
         ' PanelFooter
         ' 
         PanelFooter.BackColor = Color.FromArgb(CByte(12), CByte(20), CByte(44))
@@ -242,7 +281,7 @@ Partial Class FormMain
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.FromArgb(CByte(26), CByte(40), CByte(74))
-        ClientSize = New Size(500, 580)
+        ClientSize = New Size(500, 690)
         Controls.Add(PanelContent)
         Controls.Add(PanelFooter)
         Controls.Add(PanelHeader)
@@ -270,5 +309,7 @@ Partial Class FormMain
     Friend WithEvents LblExcelDesc As Label
     Friend WithEvents btnFrancoNet As FontAwesome.Sharp.IconButton
     Friend WithEvents LblFrancoNetDesc As Label
+    Friend WithEvents btnDashboard As FontAwesome.Sharp.IconButton
+    Friend WithEvents LblDashboardDesc As Label
 
 End Class

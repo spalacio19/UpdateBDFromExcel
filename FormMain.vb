@@ -27,10 +27,18 @@ Public Class FormMain
 
         ' Hover effects for Franco Net button (green)
         AddHandler btnFrancoNet.MouseEnter, Sub(s, ev)
-                                                btnFrancoNet.BackColor = System.Drawing.Color.FromArgb(16, 130, 58)
+                                                btnFrancoNet.BackColor = Color.FromArgb(16, 130, 58)
                                             End Sub
         AddHandler btnFrancoNet.MouseLeave, Sub(s, ev)
-                                                btnFrancoNet.BackColor = System.Drawing.Color.FromArgb(22, 163, 74)
+                                                btnFrancoNet.BackColor = Color.FromArgb(22, 163, 74)
+                                            End Sub
+
+        ' Hover effects for Dashboard button (purple)
+        AddHandler btnDashboard.MouseEnter, Sub(s, ev)
+                                                btnDashboard.BackColor = Color.FromArgb(107, 33, 168)
+                                            End Sub
+        AddHandler btnDashboard.MouseLeave, Sub(s, ev)
+                                                btnDashboard.BackColor = Color.FromArgb(88, 28, 135)
                                             End Sub
     End Sub
 
@@ -51,6 +59,11 @@ Public Class FormMain
 
     Private Sub btnFrancoNet_Click(sender As Object, e As EventArgs) Handles btnFrancoNet.Click
         Dim f As New FormFrancoNet()
+        f.Show()
+    End Sub
+
+    Private Sub btnDashboard_Click(sender As Object, e As EventArgs) Handles btnDashboard.Click
+        Dim f As New FormDashboard()
         f.Show()
     End Sub
 
