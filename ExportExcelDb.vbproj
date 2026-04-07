@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -7,8 +7,10 @@
     <UseWindowsForms>true</UseWindowsForms>
     <MyType>WindowsForms</MyType>
     <ImportedNamespaces>data=False,ExportExcelDb.My=False,Microsoft.VisualBasic.FileIO=False,System.Data=False,System.Data.Common=False,System.Data.Odbc=False,System.Data.OleDb=False,System.Data.SqlClient=False,System.Data.SqlTypes=False,System.Drawing=False,System.Windows.Forms=False,Microsoft.VisualBasic=True,System=True,System.Collections=True,System.Collections.Generic=True,System.Diagnostics=True,System.Linq=True,System.Xml.Linq=True,System.Threading.Tasks=True,ExportExcelDb=True</ImportedNamespaces>
+    <BaseOutputPath>C:\Temp\UpdateBase_Build\bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>C:\Temp\UpdateBase_Build\obj\</BaseIntermediateOutputPath>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-
 
 
   <ItemGroup>
@@ -42,6 +44,7 @@
 
   <ItemGroup>
     <PackageReference Include="FontAwesome.Sharp" Version="6.6.0" />
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.WinForms" Version="2.0.0" />
     <PackageReference Include="System.Data.OleDb" Version="9.0.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
   </ItemGroup>

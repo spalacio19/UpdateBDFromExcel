@@ -27,19 +27,55 @@ Public Class FormMain
 
         ' Hover effects for Franco Net button (green)
         AddHandler btnFrancoNet.MouseEnter, Sub(s, ev)
-                                                btnFrancoNet.BackColor = Color.FromArgb(16, 130, 58)
+                                                btnFrancoNet.BackColor = System.Drawing.Color.FromArgb(16, 130, 58)
                                             End Sub
         AddHandler btnFrancoNet.MouseLeave, Sub(s, ev)
-                                                btnFrancoNet.BackColor = Color.FromArgb(22, 163, 74)
+                                                btnFrancoNet.BackColor = System.Drawing.Color.FromArgb(22, 163, 74)
                                             End Sub
 
         ' Hover effects for Dashboard button (purple)
         AddHandler btnDashboard.MouseEnter, Sub(s, ev)
-                                                btnDashboard.BackColor = Color.FromArgb(107, 33, 168)
+                                                btnDashboard.BackColor = System.Drawing.Color.FromArgb(107, 33, 168)
                                             End Sub
         AddHandler btnDashboard.MouseLeave, Sub(s, ev)
-                                                btnDashboard.BackColor = Color.FromArgb(88, 28, 135)
+                                                btnDashboard.BackColor = System.Drawing.Color.FromArgb(88, 28, 135)
                                             End Sub
+
+        ' Injecting BtnMgaDaily Kpis Code Dynamically
+        Dim BtnMgaKpis As New FontAwesome.Sharp.IconButton()
+        BtnMgaKpis.BackColor = Color.FromArgb(180, 80, 0) ' Orange thematic
+        BtnMgaKpis.Cursor = Cursors.Hand
+        BtnMgaKpis.FlatAppearance.BorderSize = 0
+        BtnMgaKpis.FlatAppearance.MouseOverBackColor = Color.FromArgb(210, 100, 0)
+        BtnMgaKpis.FlatStyle = FlatStyle.Flat
+        BtnMgaKpis.Font = New Font("Segoe UI", 13.0!, FontStyle.Bold)
+        BtnMgaKpis.ForeColor = Color.White
+        BtnMgaKpis.IconChar = FontAwesome.Sharp.IconChar.Table
+        BtnMgaKpis.IconColor = Color.White
+        BtnMgaKpis.IconSize = 32
+        BtnMgaKpis.ImageAlign = ContentAlignment.MiddleLeft
+        BtnMgaKpis.TextImageRelation = TextImageRelation.ImageBeforeText
+        BtnMgaKpis.Location = New Point(30, 545)
+        BtnMgaKpis.Size = New Size(440, 65)
+        BtnMgaKpis.Padding = New Padding(15, 0, 0, 0)
+        BtnMgaKpis.Text = "  MGA Daily KPIs (Pivot Matrix)"
+        BtnMgaKpis.TextAlign = ContentAlignment.MiddleLeft
+        
+        Dim LblMgaDesc As New Label()
+        LblMgaDesc.AutoSize = True
+        LblMgaDesc.Font = New Font("Segoe UI", 8.5!)
+        LblMgaDesc.ForeColor = Color.FromArgb(160, 180, 220)
+        LblMgaDesc.Location = New Point(45, 616)
+        LblMgaDesc.Text = "Reporte matricial avanzado de primas y cancelaciones según plazo de póliza"
+        
+        AddHandler BtnMgaKpis.Click, Sub(s, ev)
+                                        Dim f As New FormMgaDaily()
+                                        f.Show()
+                                     End Sub
+
+        Me.Height = Me.Height + 110 ' Expand the form vertically to fit the new button
+        PanelContent.Controls.Add(BtnMgaKpis)
+        PanelContent.Controls.Add(LblMgaDesc)
     End Sub
 
     Private Sub btnExportTxt_Click(sender As Object, e As EventArgs) Handles btnExportTxt.Click
@@ -66,6 +102,5 @@ Public Class FormMain
         Dim f As New FormDashboard()
         f.Show()
     End Sub
-
 
 End Class

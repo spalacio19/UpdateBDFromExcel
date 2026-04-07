@@ -250,7 +250,7 @@ Partial Class FormMain
         LblDashboardDesc.ForeColor = Color.FromArgb(CByte(160), CByte(180), CByte(220))
         LblDashboardDesc.Location = New Point(45, 506)
         LblDashboardDesc.Name = "LblDashboardDesc"
-        LblDashboardDesc.Size = New Size(391, 15)
+        LblDashboardDesc.Size = New Size(266, 15)
         LblDashboardDesc.TabIndex = 10
         LblDashboardDesc.Text = "Visualiza KPIs y vistas de ReportDB en tiempo real"
         ' 
@@ -259,7 +259,7 @@ Partial Class FormMain
         PanelFooter.BackColor = Color.FromArgb(CByte(12), CByte(20), CByte(44))
         PanelFooter.Controls.Add(LblFooter)
         PanelFooter.Dock = DockStyle.Bottom
-        PanelFooter.Location = New Point(0, 544)
+        PanelFooter.Location = New Point(0, 654)
         PanelFooter.Name = "PanelFooter"
         PanelFooter.Size = New Size(500, 36)
         PanelFooter.TabIndex = 1
